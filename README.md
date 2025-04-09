@@ -11,7 +11,7 @@ TileHub is a simple and customizable dashboard application that allows you to ma
 
 - **Tile Management**: Add, edit, and delete tiles.  
 - **Group Organization**: Organize tiles into groups.  
-- **Icon Upload**: Upload custom icons for tiles.  
+- **Icon Upload**: Upload custom icons for tiles. SVG supported.
 - **Responsive Design**: Viewable on various devices.  
 - **Editable Mode**: Toggle between view and edit modes.<br/>
 
