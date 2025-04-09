@@ -24,7 +24,7 @@ TileHub is a simple and customizable dashboard application that allows you to ma
 - **Tile Ordering**: It is not possible to change order of Tiles from web UI yet. It can be changed inside DB though.<br/>
 
 > [!WARNING]  
-> **No Authentication**: App is intended to be run on a home network with no public access. I decided to leave authentication out and keep it simple since max damage that can be done is that someone will mess up your dashboard lol. This might be reconsidered in furure though.<br/>
+> **No Authentication**: Designed for trusted home networks, TileHub omits authentication to keep things simple. Since the risk is minimal, this was a deliberate choice, though future support may be added.<br/>
 
 
 
