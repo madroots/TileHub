@@ -1,5 +1,5 @@
 
-![Simple Dashboard (1)](https://github.com/user-attachments/assets/dbe35e0d-2c21-4675-8208-ccc9eb8068c7)
+![Simple Dashboard](https://github.com/user-attachments/assets/2a90a9da-7947-4906-a780-929d723b15e6)
 
 # TileHub
 
