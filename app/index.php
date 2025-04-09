@@ -155,8 +155,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="mb-3">
                             <label for="uploadIcon" class="form-label">Or Upload New Icon</label>
                             <input type="file" class="form-control" id="uploadIcon" name="icon_upload" accept="image/*">
-                        </div>
-                        <div class="mb-3">
+                            <div class="mb-3">
                             <label for="group" class="form-label">Group</label>
                             <select class="form-select" id="group" name="group">
                                 <option value="" selected disabled>-- Select Group --</option>
@@ -168,6 +167,10 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 }
                                 ?>
                             </select>
+                            <div class="mt-2">
+                                <label for="newGroup" class="form-label">Or Create New Group</label>
+                                <input type="text" class="form-control" id="newGroup" name="new_group" placeholder="Enter new group name">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -231,6 +234,10 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 }
                                 ?>
                             </select>
+                            <div class="mt-2">
+                                <label for="editNewGroup" class="form-label">Or Create New Group</label>
+                                <input type="text" class="form-control" id="editNewGroup" name="new_group" placeholder="Enter new group name">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

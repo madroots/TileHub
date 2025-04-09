@@ -19,13 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Upload new icon
         $tmpName = $_FILES['icon_upload']['tmp_name'];
         $iconName = uniqid() . '_' . basename($_FILES['icon_upload']['name']);
-        $uploadDir = __DIR__ . '/uploads/';
+        $uploadDir = __DIR__ . '/uploads/';  // Ensure the icon is uploaded to this directory
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
         $iconPath = $uploadDir . $iconName;
         move_uploaded_file($tmpName, $iconPath);
-        $iconPath = basename($iconPath); // Store only the relative path
+        $iconPath = basename($iconPath); // Store only the relative path for the icon
     } elseif (isset($_POST['icon']) && !empty($_POST['icon'])) {
         // Reuse existing icon
         $iconPath = htmlspecialchars($_POST['icon']);
