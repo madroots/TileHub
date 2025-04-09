@@ -1,7 +1,6 @@
-<p align="left">
-  <img src="https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d" alt="TileHub Icon" width="100" style="vertical-align: middle;" />
-  <span style="font-size: 2em; font-weight: bold; vertical-align: middle; margin-left: 10px;">TileHub</span>
-</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d" alt="TileHub Icon" width="100" />
+
 
 
 TileHub is a simple and customizable dashboard application that allows you to manage and display tiles with URLs and icons.
