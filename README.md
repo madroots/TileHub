@@ -6,7 +6,7 @@
 
 TileHub is a simple and customizable dashboard application that allows you to manage and display tiles with URLs and icons.<br/>
 
-![Screenshot_2025-04-09_21-23-56](https://github.com/user-attachments/assets/ef40bfa8-3120-4c24-a931-bbc1316cf2f5)<br/>
+![Screenshot_2025-04-09_21-25-48](https://github.com/user-attachments/assets/14675089-b313-46e1-90b0-1f0eb5df7ab8)<br/>
 
 
 ## ⭐ Features
