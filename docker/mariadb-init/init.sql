@@ -14,5 +14,11 @@ CREATE TABLE IF NOT EXISTS tiles (
     FOREIGN KEY (group_id) REFERENCES groups(id)
 );
 
--- Insert a default group
+CREATE TABLE IF NOT EXISTS settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    key_name VARCHAR(255) NOT NULL UNIQUE,
+    value TEXT DEFAULT NULL
+);
+
+INSERT IGNORE INTO settings (key_name, value) VALUES ('dashboard_title', 'Dashboard');
 INSERT IGNORE INTO groups (name, position) VALUES ('Uncategorized', 1);

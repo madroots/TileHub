@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   app:
     build: .
@@ -35,8 +34,12 @@ services:
       MYSQL_PASSWORD: ${DB_PASS}
     volumes:
       - ./docker/mariadb-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
     networks:
       - mynetwork
+
+volumes:
+  db_data:
 
 networks:
   mynetwork:

@@ -1,16 +1,19 @@
 <?php
 // Include database connection
 require_once 'db.php';
-
 // Initialize session
 session_start();
-
 // Check if in edit mode
 if (isset($_GET['edit']) && $_GET['edit'] === 'true') {
     $_SESSION['edit_mode'] = true;
 } elseif (isset($_GET['exit_edit'])) {
     unset($_SESSION['edit_mode']);
 }
+
+// Fetch dashboard title
+$stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'dashboard_title'");
+$stmt->execute();
+$dashboardTitle = $stmt->fetchColumn() ?: 'Dashboard'; // Default to "Dashboard" if not set
 
 // Fetch all groups
 $stmt = $pdo->query("SELECT id, name FROM groups ORDER BY position ASC");
@@ -22,9 +25,7 @@ $stmt = $pdo->query("SELECT t.id, t.title, t.url, t.icon, t.group_id, t.position
                      JOIN groups g ON t.group_id = g.id 
                      ORDER BY g.position ASC, t.position ASC");
 $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,13 +78,20 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body class="p-4">
     <div class="container">
-        <h1 class="mb-4">Welcome</h1>
-
+        <h1 class="mb-4" id="dashboard-title">
+            <?php if (isset($_SESSION['edit_mode'])) : ?>
+                <!-- Editable Input Field -->
+                <input type="text" class="form-control d-inline w-auto" id="editable-title" value="<?= htmlspecialchars($dashboardTitle) ?>" />
+                <button class="btn btn-sm btn-primary ms-2" id="save-title">Save</button>
+            <?php else : ?>
+                <!-- Static Title -->
+                <?= htmlspecialchars($dashboardTitle) ?>
+            <?php endif; ?>
+        </h1>
         <?php if (isset($_SESSION['edit_mode'])) : ?>
             <a href="?exit_edit=true" class="btn btn-danger mb-3">Exit Edit Mode</a>
             <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addTileModal">Add Tile</button>
         <?php endif; ?>
-
         <div class="row" id="tile-container">
             <?php
             $currentGroupId = null;
@@ -96,14 +104,12 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <hr>
                     </div>
                 <?php endif; ?>
-
                 <div class="col-md-4 col-sm-6 tile-item" data-id="<?= $tile['id'] ?>">
                     <!-- Tile Link -->
                     <a href="<?= htmlspecialchars($tile['url']) ?>" target="_blank" class="tile d-flex align-items-center">
                         <img src="uploads/<?= htmlspecialchars($tile['icon']) ?>" alt="Icon">
                         <span><?= htmlspecialchars($tile['title']) ?></span>
                     </a>
-
                     <!-- Edit and Delete Buttons -->
                     <?php if (isset($_SESSION['edit_mode'])) : ?>
                         <div class="edit-buttons mt-2">
@@ -123,7 +129,6 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </div>
     </div>
-
     <!-- Add Tile Modal -->
     <div class="modal fade" id="addTileModal" tabindex="-1" aria-labelledby="addTileModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -185,7 +190,6 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
-
     <!-- Edit Tile Modal -->
     <div class="modal fade" id="editTileModal" tabindex="-1" aria-labelledby="editTileModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -248,7 +252,6 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
-
     <!-- Bootstrap JS and Popper.js via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -260,13 +263,43 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const url = this.getAttribute('data-url');
                 const icon = this.getAttribute('data-icon');
                 const groupId = this.getAttribute('data-group-id');
-
                 document.getElementById('editId').value = id;
                 document.getElementById('editTitle').value = title;
                 document.getElementById('editUrl').value = url;
                 document.getElementById('editIcon').value = icon; // Pre-select the icon
                 document.getElementById('editGroup').value = groupId; // Pre-fill the group name
             });
+        });
+
+        // Save Dashboard Title
+        document.addEventListener('DOMContentLoaded', function () {
+            const editableTitle = document.getElementById('editable-title');
+            const saveButton = document.getElementById('save-title');
+
+            if (editableTitle && saveButton) {
+                saveButton.addEventListener('click', function () {
+                    const newTitle = editableTitle.value;
+
+                    // Send the updated title to the server
+                    fetch('edit_tile.php?action=update_title', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ title: newTitle })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Title updated successfully!');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            alert('Failed to update title.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            }
         });
     </script>
 </body>

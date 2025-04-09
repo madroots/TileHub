@@ -8,6 +8,21 @@ error_reporting(E_ALL);
 
 // Handle form submission for adding/editing tiles
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_GET['action']) && $_GET['action'] === 'update_title') {
+        // Get the new title from the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        $newTitle = htmlspecialchars($data['title']);
+
+        // Update the dashboard title in the database
+        $stmt = $pdo->prepare("INSERT INTO settings (key_name, value) VALUES ('dashboard_title', :title) 
+                               ON DUPLICATE KEY UPDATE value = :title");
+        $success = $stmt->execute(['title' => $newTitle]);
+
+        // Return a JSON response
+        echo json_encode(['success' => $success]);
+        exit;
+    }
+
     $id = isset($_POST['id']) ? (int)$_POST['id'] : null;
     $title = htmlspecialchars($_POST['title']);
     $url = htmlspecialchars($_POST['url']);
