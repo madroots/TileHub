@@ -1,0 +1,4 @@
+uploads/*
+*.log
+vendor/
+node_modules/
