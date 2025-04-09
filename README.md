@@ -1,5 +1,6 @@
 
-![Simple Dashboard (1)](https://github.com/user-attachments/assets/6d4b0214-9d95-49f3-bb8a-f8f23ce52f06)
+![Simple Dashboard (1)](https://github.com/user-attachments/assets/dbe35e0d-2c21-4675-8208-ccc9eb8068c7)
+
 
 
 <p align="center">
