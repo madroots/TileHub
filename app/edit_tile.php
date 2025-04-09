@@ -11,27 +11,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = isset($_POST['id']) ? (int)$_POST['id'] : null;
     $title = htmlspecialchars($_POST['title']);
     $url = htmlspecialchars($_POST['url']);
-    $groupName = htmlspecialchars($_POST['group']);
+    $groupId = isset($_POST['group']) ? (int)$_POST['group'] : null;
     $newGroupName = htmlspecialchars($_POST['new_group']);
 
     // Determine the group_id
-    $groupId = null;
     if (!empty($newGroupName)) {
-        // Create a new group
-        $stmt = $pdo->prepare("INSERT INTO groups (name, position) VALUES (:name, (SELECT IFNULL(MAX(position) + 1, 1) FROM groups)) ON DUPLICATE KEY UPDATE name = name");
-        $stmt->execute(['name' => $newGroupName]);
+        // Get the maximum position from the groups table
+        $stmt = $pdo->query("SELECT IFNULL(MAX(position), 0) AS max_position FROM groups");
+        $maxPosition = $stmt->fetchColumn();
+        $newGroupPosition = $maxPosition + 1;
+
+        // Insert the new group
+        $stmt = $pdo->prepare("INSERT INTO groups (name, position) VALUES (:name, :position)");
+        $stmt->execute(['name' => $newGroupName, 'position' => $newGroupPosition]);
+
+        // Get the new group's ID
         $groupId = $pdo->lastInsertId();
-    } else {
-        // Get the group_id for the selected group
-        $stmt = $pdo->prepare("SELECT id FROM groups WHERE name = :name");
-        $stmt->execute(['name' => $groupName]);
+    } elseif ($groupId === null) {
+        // Default to the "Uncategorized" group if no group is selected
+        $stmt = $pdo->prepare("SELECT id FROM groups WHERE name = 'Uncategorized'");
+        $stmt->execute();
         $groupData = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($groupData) {
             $groupId = $groupData['id'];
         } else {
-            // If the group doesn't exist, create it
-            $stmt = $pdo->prepare("INSERT INTO groups (name, position) VALUES (:name, (SELECT IFNULL(MAX(position) + 1, 1) FROM groups))");
-            $stmt->execute(['name' => $groupName]);
+            // If "Uncategorized" group doesn't exist, create it
+            $stmt = $pdo->query("SELECT IFNULL(MAX(position), 0) AS max_position FROM groups");
+            $maxPosition = $stmt->fetchColumn();
+            $newGroupPosition = $maxPosition + 1;
+
+            $stmt = $pdo->prepare("INSERT INTO groups (name, position) VALUES ('Uncategorized', :position)");
+            $stmt->execute(['position' => $newGroupPosition]);
+
             $groupId = $pdo->lastInsertId();
         }
     }
