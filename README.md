@@ -1,9 +1,9 @@
-<table>
-  <tr>
-    <td>
+<table style="border: none;">
+  <tr style="border: none;">
+    <td style="border: none;">
       <img src="https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d" alt="TileHub_Icon" width="100" />
     </td>
-    <td>
+    <td style="border: none;">
       <h1 style="margin: 0;">TileHub</h1>
     </td>
   </tr>
