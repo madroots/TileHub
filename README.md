@@ -1,5 +1,6 @@
 
-![Simple Dashboard](https://github.com/user-attachments/assets/b8217eff-0c52-4b6a-a8df-5db629790e2c)
+![Simple Dashboard (1)](https://github.com/user-attachments/assets/6d4b0214-9d95-49f3-bb8a-f8f23ce52f06)
+
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d" alt="TileHub Icon" width="100" />
