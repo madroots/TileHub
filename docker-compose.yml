@@ -34,7 +34,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASS}
     volumes:
-      - ./docker/mariadb_init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/mariadb-init/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - mynetwork
 
