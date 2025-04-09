@@ -23,14 +23,14 @@ services:
       - app
 
   db:
-    image: mariadb:lts
+    image: mariadb:11
     environment:
-      MARIADB_ROOT_PASSWORD: ${ROOT_DB_PASS}
-      MARIADB_DATABASE: ${DB_NAME}
-      MARIADB_USER: ${DB_USER}
-      MARIADB_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${ROOT_DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     volumes:
-      - db_data:/var/lib/mysql
+      - ./docker/mariadb_init/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   db_data:

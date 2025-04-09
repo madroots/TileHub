@@ -15,26 +15,4 @@ try {
 } catch (\PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
-
-function initializeDatabaseSchema($pdo) {
-    $tableName = 'tiles';
-    $stmt = $pdo->prepare("SHOW TABLES LIKE :table");
-    $stmt->execute(['table' => $tableName]);
-    $exists = $stmt->fetchColumn();
-
-    if (!$exists) {
-        $createTableSql = "
-            CREATE TABLE IF NOT EXISTS $tableName (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                url VARCHAR(255) NOT NULL,
-                icon VARCHAR(255) DEFAULT NULL,
-                group_name VARCHAR(255) NOT NULL,
-                position INT NOT NULL,
-                group_position INT NOT NULL
-            )
-        ";
-        $pdo->exec($createTableSql);
-    }
-}
 ?>
