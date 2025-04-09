@@ -12,8 +12,15 @@ if (isset($_GET['edit']) && $_GET['edit'] === 'true') {
     unset($_SESSION['edit_mode']);
 }
 
+// Fetch all groups
+$stmt = $pdo->query("SELECT id, name FROM groups ORDER BY position ASC");
+$groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Fetch all tiles ordered by group_position and position
-$stmt = $pdo->query("SELECT * FROM tiles ORDER BY group_position ASC, position ASC");
+$stmt = $pdo->query("SELECT t.id, t.title, t.url, t.icon, t.group_id, t.position, g.name AS group_name 
+                     FROM tiles t 
+                     JOIN groups g ON t.group_id = g.id 
+                     ORDER BY g.position ASC, t.position ASC");
 $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -79,11 +86,11 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="row" id="tile-container">
             <?php
-            $currentGroup = null;
+            $currentGroupId = null;
             foreach ($tiles as $tile) : ?>
                 <!-- Display Group Heading if Group Changes -->
-                <?php if ($currentGroup !== $tile['group_name']) : ?>
-                    <?php $currentGroup = $tile['group_name']; ?>
+                <?php if ($currentGroupId !== $tile['group_id']) : ?>
+                    <?php $currentGroupId = $tile['group_id']; ?>
                     <div class="col-12 group-header">
                         <h2 class="text-primary"><?= htmlspecialchars($tile['group_name']) ?></h2>
                         <hr>
@@ -106,7 +113,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 data-title="<?= htmlspecialchars($tile['title']) ?>" 
                                 data-url="<?= htmlspecialchars($tile['url']) ?>" 
                                 data-icon="<?= htmlspecialchars($tile['icon']) ?>"
-                                data-group="<?= htmlspecialchars($tile['group_name']) ?>">
+                                data-group-id="<?= $tile['group_id'] ?>">
                                 Edit
                             </button>
                             <a href="?delete=<?= $tile['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
@@ -155,17 +162,14 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="mb-3">
                             <label for="uploadIcon" class="form-label">Or Upload New Icon</label>
                             <input type="file" class="form-control" id="uploadIcon" name="icon_upload" accept="image/*">
-                            <div class="mb-3">
+                        </div>
+                        <div class="mb-3">
                             <label for="group" class="form-label">Group</label>
                             <select class="form-select" id="group" name="group">
                                 <option value="" selected disabled>-- Select Group --</option>
-                                <?php
-                                $stmt = $pdo->query("SELECT DISTINCT group_name FROM tiles ORDER BY group_name ASC");
-                                $groups = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                                foreach ($groups as $group) {
-                                    echo '<option value="' . htmlspecialchars($group) . '">' . htmlspecialchars($group) . '</option>';
-                                }
-                                ?>
+                                <?php foreach ($groups as $group) : ?>
+                                    <option value="<?= htmlspecialchars($group['id']) ?>"><?= htmlspecialchars($group['name']) ?></option>
+                                <?php endforeach; ?>
                             </select>
                             <div class="mt-2">
                                 <label for="newGroup" class="form-label">Or Create New Group</label>
@@ -226,13 +230,9 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <label for="editGroup" class="form-label">Group</label>
                             <select class="form-select" id="editGroup" name="group">
                                 <option value="" selected disabled>-- Select Group --</option>
-                                <?php
-                                $stmt = $pdo->query("SELECT DISTINCT group_name FROM tiles ORDER BY group_name ASC");
-                                $groups = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                                foreach ($groups as $group) {
-                                    echo '<option value="' . htmlspecialchars($group) . '">' . htmlspecialchars($group) . '</option>';
-                                }
-                                ?>
+                                <?php foreach ($groups as $group) : ?>
+                                    <option value="<?= htmlspecialchars($group['id']) ?>"><?= htmlspecialchars($group['name']) ?></option>
+                                <?php endforeach; ?>
                             </select>
                             <div class="mt-2">
                                 <label for="editNewGroup" class="form-label">Or Create New Group</label>
@@ -259,13 +259,13 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const title = this.getAttribute('data-title');
                 const url = this.getAttribute('data-url');
                 const icon = this.getAttribute('data-icon');
-                const group = this.getAttribute('data-group');
+                const groupId = this.getAttribute('data-group-id');
 
                 document.getElementById('editId').value = id;
                 document.getElementById('editTitle').value = title;
                 document.getElementById('editUrl').value = url;
                 document.getElementById('editIcon').value = icon; // Pre-select the icon
-                document.getElementById('editGroup').value = group; // Pre-fill the group name
+                document.getElementById('editGroup').value = groupId; // Pre-fill the group name
             });
         });
     </script>
