@@ -77,7 +77,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body class="p-4">
     <div class="container">
-        <h1 class="mb-4">Dashboard</h1>
+        <h1 class="mb-4">Welcome</h1>
 
         <?php if (isset($_SESSION['edit_mode'])) : ?>
             <a href="?exit_edit=true" class="btn btn-danger mb-3">Exit Edit Mode</a>
