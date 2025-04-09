@@ -1,8 +1,5 @@
 <p align="center">
   <img src="https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d" alt="TileHub Icon" width="100" />
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d" alt="TileHub Icon" width="100" />
 </p>
 
 # TileHub
@@ -42,19 +39,15 @@ TileHub is a simple and customizable dashboard application that allows you to ma
 
 2. **Edit Database Password**
 
-   Open docker-compose.yml with your prefered text editor:
+   Open .env with your prefered text editor:
    ```bash
-   nano docker-compose.yml
+   nano .env
    ```
-   and edit environment variables:
-   ```
-   DB_PASS
-   MARIADB_ROOT_PASSWORD
-   MARIADB_PASSWORD
-   ```
+   and change database password to your own
+
 3. **Run**
    ```
-   docker-compose up -d
+   docker-compose up -d --build
    ```
 
-Thats it. 🥳
+App runs on `localhost:5200` unless you changed port in docker-compose.yml 🥳
