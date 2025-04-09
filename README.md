@@ -1,12 +1,6 @@
 
 ![Simple Dashboard (1)](https://github.com/user-attachments/assets/dbe35e0d-2c21-4675-8208-ccc9eb8068c7)
 
-
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d" alt="TileHub Icon" width="100" />
-</p>
-
 # TileHub
 
 TileHub is a simple and customizable dashboard application that allows you to manage and display tiles with URLs and icons.<br/>
