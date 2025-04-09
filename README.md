@@ -1,4 +1,4 @@
-# TileHub ![TileHub_Icon](https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d =250x250)
+# TileHub ![TileHub_Icon](https://github.com/user-attachments/assets/47037d54-b23b-4b47-baa5-f26ced05624d | width=20)
 
 TileHub is a simple and customizable dashboard application that allows you to manage and display tiles with URLs and icons.
 
