@@ -6,33 +6,12 @@ require_once 'db.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Verify CSRF Token
-function verifyCsrfToken($token) {
-    if (!isset($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
-        return false;
-    }
-    return true;
-}
-
 // Handle form submission for adding/editing tiles
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verify CSRF Token
-    if (!verifyCsrfToken($_POST['csrf_token'])) {
-        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
-        exit;
-    }
-
     if (isset($_GET['action']) && $_GET['action'] === 'update_title') {
         // Get the new title from the request body
         $data = json_decode(file_get_contents('php://input'), true);
         $newTitle = htmlspecialchars($data['title']);
-        $csrfTokenFromRequest = $data['csrf_token'];
-
-        // Verify CSRF Token
-        if (!verifyCsrfToken($csrfTokenFromRequest)) {
-            echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
-            exit;
-        }
 
         // Update the dashboard title in the database
         $stmt = $pdo->prepare("INSERT INTO settings (key_name, value) VALUES ('dashboard_title', :title) 
@@ -117,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($id) { // Update existing tile
         $stmt = $pdo->prepare("UPDATE tiles SET title = :title, url = :url, icon = :icon, group_id = :group_id, position = :position WHERE id = :id");
-        $success = $stmt->execute([
+        $stmt->execute([
             'title' => $title,
             'url' => $url,
             'icon' => $iconPath,
@@ -125,50 +104,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'position' => $position,
             'id' => $id
         ]);
-
-        if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Tile updated successfully!']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to update tile.']);
-        }
-        exit;
     } else { // Add new tile
         $stmt = $pdo->prepare("INSERT INTO tiles (title, url, icon, group_id, position) VALUES (:title, :url, :icon, :group_id, :position)");
-        $success = $stmt->execute([
+        $stmt->execute([
             'title' => $title,
             'url' => $url,
             'icon' => $iconPath,
             'group_id' => $groupId,
             'position' => $position
         ]);
-
-        if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Tile added successfully!']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to add tile.']);
-        }
-        exit;
     }
 }
 
 // Handle deletion of tiles
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
-    // Verify CSRF Token
-    if (!verifyCsrfToken($_POST['csrf_token'])) {
-        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
-        exit;
-    }
-
-    $tileId = (int)$_POST['delete'];
+if (isset($_GET['delete'])) {
     $stmt = $pdo->prepare("DELETE FROM tiles WHERE id = :id");
-    $success = $stmt->execute(['id' => $tileId]);
-
-    if ($success) {
-        echo json_encode(['success' => true, 'message' => 'Tile deleted successfully!']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to delete tile.']);
-    }
-    exit;
+    $stmt->execute(['id' => $_GET['delete']]);
 }
 
 header('Location: index.php');

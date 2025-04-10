@@ -3,12 +3,6 @@
 require_once 'db.php';
 // Initialize session
 session_start();
-// Generate CSRF token
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['csrf_token'];
-
 // Check if in edit mode
 if (isset($_GET['edit']) && $_GET['edit'] === 'true') {
     $_SESSION['edit_mode'] = true;
@@ -80,13 +74,6 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: bold;
             text-transform: uppercase;
         }
-        /* Toast Styles */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1050;
-        }
     </style>
 </head>
 <body class="p-4">
@@ -135,11 +122,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 data-group-id="<?= $tile['group_id'] ?>">
                                 Edit
                             </button>
-                            <form action="edit_tile.php" method="POST" class="d-inline">
-                                <input type="hidden" name="delete" value="<?= $tile['id'] ?>">
-                                <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
-                                <button type="submit" class="btn btn-sm btn-danger delete-tile">Delete</button>
-                            </form>
+                            <a href="?delete=<?= $tile['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -156,7 +139,6 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <form method="POST" action="edit_tile.php" enctype="multipart/form-data">
                     <div class="modal-body">
-                        <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                         <div class="mb-3">
                             <label for="title" class="form-label">Title</label>
                             <input type="text" class="form-control" id="title" name="title" required>
@@ -218,7 +200,6 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <form method="POST" action="edit_tile.php" enctype="multipart/form-data">
                     <div class="modal-body">
-                        <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                         <input type="hidden" id="editId" name="id">
                         <div class="mb-3">
                             <label for="editTitle" class="form-label">Title</label>
@@ -271,36 +252,9 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
-    <!-- Toast Container -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto">Notification</strong>
-                <small>Just now</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body" id="toastBody"></div>
-        </div>
-    </div>
     <!-- Bootstrap JS and Popper.js via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Function to show a toast notification
-        function showToast(message, type = 'success') {
-            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
-            const toastList = toastElList.map(function(toastEl) {
-                return new bootstrap.Toast(toastEl);
-            });
-
-            const toastBody = document.getElementById('toastBody');
-            toastBody.innerHTML = message;
-
-            const toastHeader = document.querySelector('.toast-header strong');
-            toastHeader.textContent = type.charAt(0).toUpperCase() + type.slice(1) + ' Notification';
-
-            toastList.forEach(toast => toast.show());
-        }
-
         // Populate edit modal fields
         document.querySelectorAll('[data-bs-target="#editTileModal"]').forEach(button => {
             button.addEventListener('click', function() {
@@ -332,37 +286,20 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ title: newTitle, csrf_token: '<?= $csrfToken ?>' })
+                        body: JSON.stringify({ title: newTitle })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            showToast('Title updated successfully!', 'success');
+                            alert('Title updated successfully!');
                             location.reload(); // Reload the page to reflect changes
                         } else {
-                            showToast(data.message, 'danger');
+                            alert('Failed to update title.');
                         }
                     })
-                    .catch(error => {
-                        showToast('An error occurred.', 'danger');
-                        console.error('Error:', error);
-                    });
+                    .catch(error => console.error('Error:', error));
                 });
             }
-        });
-
-        // Handle Tile Deletion
-        document.querySelectorAll('.delete-tile').forEach(button => {
-            button.addEventListener('click', function(event) {
-                event.preventDefault();
-                const form = this.closest('form');
-                const tileId = form.querySelector('input[name="delete"]').value;
-
-                // Show a confirmation dialog
-                if (confirm('Are you sure you want to delete this tile?')) {
-                    form.submit();
-                }
-            });
         });
     </script>
 </body>
