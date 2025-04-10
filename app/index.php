@@ -74,6 +74,12 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: bold;
             text-transform: uppercase;
         }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
     </style>
 </head>
 <body class="p-4">
@@ -122,7 +128,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 data-group-id="<?= $tile['group_id'] ?>">
                                 Edit
                             </button>
-                            <a href="?delete=<?= $tile['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                            <a href="#" class="btn btn-sm btn-danger delete-tile" data-id="<?= $tile['id'] ?>">Delete</a>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -252,9 +258,34 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <small>Just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastBody"></div>
+        </div>
+    </div>
     <!-- Bootstrap JS and Popper.js via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function showToast(message, type = 'success') {
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            const toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl);
+            });
+
+            const toastBody = document.getElementById('toastBody');
+            toastBody.innerHTML = message;
+
+            const toastHeader = document.querySelector('.toast-header strong');
+            toastHeader.textContent = type.charAt(0).toUpperCase() + type.slice(1) + ' Notification';
+
+            toastList.forEach(toast => toast.show());
+        }
+
         // Populate edit modal fields
         document.querySelectorAll('[data-bs-target="#editTileModal"]').forEach(button => {
             button.addEventListener('click', function() {
@@ -291,15 +322,47 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Title updated successfully!');
+                            showToast('Title updated successfully!', 'success');
                             location.reload(); // Reload the page to reflect changes
                         } else {
-                            alert('Failed to update title.');
+                            showToast('Failed to update title.', 'danger');
                         }
                     })
-                    .catch(error => console.error('Error:', error));
+                    .catch(error => {
+                        showToast('An error occurred.', 'danger');
+                        console.error('Error:', error);
+                    });
                 });
             }
+        });
+
+        // Handle Tile Deletion
+        document.querySelectorAll('.delete-tile').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const tileId = this.getAttribute('data-id');
+
+                // Show a confirmation dialog
+                if (confirm('Are you sure you want to delete this tile?')) {
+                    // Send the delete request to the server
+                    fetch(`edit_tile.php?delete=${tileId}`, {
+                        method: 'GET'
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data === 'success') {
+                            showToast('Tile deleted successfully!', 'success');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            showToast('Failed to delete tile.', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        showToast('An error occurred.', 'danger');
+                        console.error('Error:', error);
+                    });
+                }
+            });
         });
     </script>
 </body>
