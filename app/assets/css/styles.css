@@ -1,6 +1,52 @@
+/* Wallpaper background */
 body {
-    background-color: #121212;
-    color: #fff;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    position: relative;
+}
+
+/* Dark overlay */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Default 50% darkness */
+    z-index: -1;
+}
+
+/* Wallpaper search results */
+.wallpaper-thumbnail {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.wallpaper-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* Range slider for darkness */
+.range-slider {
+    display: flex;
+    align-items: center;
+    width: 150px;
+}
+
+.slider {
+    width: 100px;
+    margin-right: 10px;
+}
+
+#darknessValue {
+    min-width: 40px;
 }
 .tile {
     background-color: #212121;

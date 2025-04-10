@@ -41,16 +41,36 @@ $stmt = $pdo->query("SELECT t.id, t.title, t.url, t.icon, t.group_id, t.position
                      ORDER BY g.position ASC, t.position ASC");
 $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<?php
+// Load wallpaper settings
+$stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'wallpaper_url'");
+$stmt->execute();
+$wallpaperUrl = $stmt->fetchColumn();
+
+// Load overlay darkness
+$stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'overlay_darkness'");
+$stmt->execute();
+$overlayDarkness = $stmt->fetchColumn() ?: 50; // Default to 50% if not set
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TileHub Dashboard</title>
+    <title>Dashboard</title>
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/styles.css" rel="stylesheet">
+    <style>
+        :root {
+            --overlay-opacity: 0.5; /* Default 50% darkness */
+        }
+        
+        body::before {
+            background-color: rgba(0, 0, 0, var(--overlay-opacity));
+        }
+    </style>
 </head>
-<body class="p-4">
+<body class="p-4" <?php echo $wallpaperUrl ? 'style="background-image: url(\'' . htmlspecialchars($wallpaperUrl) . '\');"' : ''; ?>>
     <div class="container">
         <h1 class="mb-4" id="dashboard-title">
             <?php if (isset($_SESSION['edit_mode'])) : ?>
@@ -253,6 +273,45 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 <!-- More settings here in the future -->
+                <!-- Wallpaper Section -->
+                <div class="setting-item">
+                    <span>Wallpaper</span>
+                    <button class="btn btn-sm btn-primary" id="searchWallpaperBtn">Search</button>
+                </div>
+                
+                <!-- Overlay Darkness -->
+                <div class="setting-item">
+                    <span>Overlay Darkness</span>
+                    <div class="range-slider">
+                        <input type="range" min="0" max="90" value="50" class="slider" id="overlayDarknessSlider">
+                        <span id="darknessValue">50%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Wallpaper Search Modal -->
+    <div class="modal fade" id="wallpaperModal" tabindex="-1" aria-labelledby="wallpaperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="wallpaperModalLabel">Search Wallpapers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="wallpaperSearchInput" placeholder="Search wallpapers...">
+                        <button class="btn btn-primary" id="wallpaperSearchBtn">Search</button>
+                    </div>
+                    <div class="row" id="wallpaperResults">
+                        <!-- Wallpaper results will be displayed here -->
+                    </div>
+                    <div id="wallpaperLoading" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
