@@ -16,6 +16,12 @@ function verifyCsrfToken($token) {
 
 // Handle form submission for adding/editing tiles
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verify CSRF Token
+    if (!verifyCsrfToken($_POST['csrf_token'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+
     if (isset($_GET['action']) && $_GET['action'] === 'update_title') {
         // Get the new title from the request body
         $data = json_decode(file_get_contents('php://input'), true);
@@ -28,12 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Return a JSON response
         echo json_encode(['success' => $success]);
-        exit;
-    }
-
-    // Verify CSRF Token
-    if (!verifyCsrfToken($_POST['csrf_token'])) {
-        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
         exit;
     }
 
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($id) { // Update existing tile
         $stmt = $pdo->prepare("UPDATE tiles SET title = :title, url = :url, icon = :icon, group_id = :group_id, position = :position WHERE id = :id");
-        $stmt->execute([
+        $success = $stmt->execute([
             'title' => $title,
             'url' => $url,
             'icon' => $iconPath,
@@ -118,15 +118,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'position' => $position,
             'id' => $id
         ]);
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Tile updated successfully!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update tile.']);
+        }
+        exit;
     } else { // Add new tile
         $stmt = $pdo->prepare("INSERT INTO tiles (title, url, icon, group_id, position) VALUES (:title, :url, :icon, :group_id, :position)");
-        $stmt->execute([
+        $success = $stmt->execute([
             'title' => $title,
             'url' => $url,
             'icon' => $iconPath,
             'group_id' => $groupId,
             'position' => $position
         ]);
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Tile added successfully!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to add tile.']);
+        }
+        exit;
     }
 }
 
