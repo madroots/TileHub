@@ -6,6 +6,14 @@ require_once 'db.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// Verify CSRF Token
+function verifyCsrfToken($token) {
+    if (!isset($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
+        return false;
+    }
+    return true;
+}
+
 // Handle form submission for adding/editing tiles
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_GET['action']) && $_GET['action'] === 'update_title') {
@@ -20,6 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Return a JSON response
         echo json_encode(['success' => $success]);
+        exit;
+    }
+
+    // Verify CSRF Token
+    if (!verifyCsrfToken($_POST['csrf_token'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
         exit;
     }
 
@@ -117,9 +131,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Handle deletion of tiles
-if (isset($_GET['delete'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+    // Verify CSRF Token
+    if (!verifyCsrfToken($_POST['csrf_token'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+
+    $tileId = (int)$_POST['delete'];
     $stmt = $pdo->prepare("DELETE FROM tiles WHERE id = :id");
-    $stmt->execute(['id' => $_GET['delete']]);
+    $success = $stmt->execute(['id' => $tileId]);
+
+    if ($success) {
+        echo json_encode(['success' => true, 'message' => 'Tile deleted successfully!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to delete tile.']);
+    }
+    exit;
 }
 
 header('Location: index.php');
