@@ -116,12 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle deletion of tiles
-if (isset($_GET['delete'])) {
-    $stmt = $pdo->prepare("DELETE FROM tiles WHERE id = :id");
-    $stmt->execute(['id' => $_GET['delete']]);
-}
-
 header('Location: index.php');
 exit;
 ?>

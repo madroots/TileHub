@@ -3,11 +3,26 @@
 require_once 'db.php';
 // Initialize session
 session_start();
+
+// Handle deletion of tiles
+if (isset($_GET['delete'])) {
+    $stmt = $pdo->prepare("DELETE FROM tiles WHERE id = :id");
+    $stmt->execute(['id' => $_GET['delete']]);
+    
+    // Redirect to clean URL after deletion
+    header('Location: ./');
+    exit;
+}
+
 // Check if in edit mode
 if (isset($_GET['edit']) && $_GET['edit'] === 'true') {
     $_SESSION['edit_mode'] = true;
+    header('Location: ./');
+    exit;
 } elseif (isset($_GET['exit_edit'])) {
     unset($_SESSION['edit_mode']);
+    header('Location: ./');
+    exit;
 }
 
 // Fetch dashboard title
