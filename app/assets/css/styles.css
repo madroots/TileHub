@@ -1,0 +1,165 @@
+body {
+    background-color: #121212;
+    color: #fff;
+}
+.tile {
+    background-color: #212121;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+}
+.tile:hover {
+    background-color: #333;
+}
+.tile img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+.form-label {
+    color: #000; /* Dark text for form labels */
+}
+.group-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.edit-buttons {
+    display: flex;
+    gap: 10px;
+}
+.group-header h2 {
+    color: #ff5722 !important; /* Custom group title color */
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+/* Settings Button */
+.settings-button {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    background-color: rgba(51, 51, 51, 0.3); /* Semi-transparent background */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    opacity: 0.2; /* Start with low opacity */
+}
+
+.settings-button:hover {
+    background-color: #444;
+    transform: rotate(30deg);
+    opacity: 1; /* Full opacity on hover */
+}
+
+.settings-button svg {
+    color: #ff5722;
+}
+
+/* Settings Overlay */
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Start off-screen */
+    width: 300px;
+    height: 100%;
+    background-color: #212121;
+    z-index: 1001;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.settings-overlay.active {
+    right: 0;
+}
+
+.settings-content {
+    padding: 20px;
+    color: #fff;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.settings-header h3 {
+    margin: 0;
+    color: #ff5722;
+}
+
+.close-settings {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Settings Items */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #333;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #444;
+    border-radius: 34px;
+    cursor: pointer;
+    transition: .4s;
+}
+
+.toggle-switch label:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+.toggle-switch input:checked + label {
+    background-color: #ff5722;
+}
+
+.toggle-switch input:checked + label:before {
+    transform: translateX(29px);
+}
