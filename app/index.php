@@ -28,7 +28,7 @@ if (isset($_GET['edit']) && $_GET['edit'] === 'true') {
 // Fetch dashboard title
 $stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'dashboard_title'");
 $stmt->execute();
-$dashboardTitle = $stmt->fetchColumn() ?: 'TileHub Dashboard'; // Default to "Dashboard" if not set
+$dashboardTitle = $stmt->fetchColumn() ?: 'TileHub Dashboard'; // Default to "TileHub Dashboard"
 
 // Fetch all groups
 $stmt = $pdo->query("SELECT id, name FROM groups ORDER BY position ASC");
