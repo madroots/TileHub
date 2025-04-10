@@ -89,6 +89,130 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: bold;
             text-transform: uppercase;
         }
+                /* Settings Button */
+        .settings-button {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            background-color: #333;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .settings-button:hover {
+            background-color: #444;
+            transform: rotate(30deg);
+        }
+
+        .settings-button svg {
+            color: #ff5722;
+        }
+
+        /* Settings Overlay */
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            right: -300px; /* Start off-screen */
+            width: 300px;
+            height: 100%;
+            background-color: #212121;
+            z-index: 1001;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-overlay.active {
+            right: 0;
+        }
+
+        .settings-content {
+            padding: 20px;
+            color: #fff;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .settings-header h3 {
+            margin: 0;
+            color: #ff5722;
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Settings Items */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-switch label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #444;
+            border-radius: 34px;
+            cursor: pointer;
+            transition: .4s;
+        }
+
+        .toggle-switch label:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        .toggle-switch input:checked + label {
+            background-color: #ff5722;
+        }
+
+        .toggle-switch input:checked + label:before {
+            transform: translateX(29px);
+        }
     </style>
 </head>
 <body class="p-4">
@@ -316,6 +440,68 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             }
         });
+        // Settings functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const settingsButton = document.getElementById('settingsButton');
+            const settingsOverlay = document.getElementById('settingsOverlay');
+            const closeSettings = document.getElementById('closeSettings');
+            const editModeToggle = document.getElementById('editModeToggle');
+
+            // Open settings overlay
+            settingsButton.addEventListener('click', function() {
+                settingsOverlay.classList.add('active');
+            });
+
+            // Close settings overlay
+            closeSettings.addEventListener('click', function() {
+                settingsOverlay.classList.remove('active');
+            });
+
+            // Handle click outside to close
+            document.addEventListener('click', function(event) {
+                if (!settingsOverlay.contains(event.target) && 
+                    !settingsButton.contains(event.target) && 
+                    settingsOverlay.classList.contains('active')) {
+                    settingsOverlay.classList.remove('active');
+                }
+            });
+
+            // Toggle edit mode
+            editModeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    window.location.href = '?edit=true';
+                } else {
+                    window.location.href = '?exit_edit=true';
+                }
+            });
+        });
     </script>
+    <!-- Settings Button (fixed position) -->
+    <div class="settings-button" id="settingsButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h3>Settings</h3>
+                <button class="close-settings" id="closeSettings">&times;</button>
+            </div>
+            <div class="settings-body">
+                <div class="setting-item">
+                    <span>Edit Mode</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="editModeToggle" <?php echo isset($_SESSION['edit_mode']) ? 'checked' : ''; ?>>
+                        <label for="editModeToggle"></label>
+                    </div>
+                </div>
+                <!-- Add more settings here in the future -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
