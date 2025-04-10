@@ -332,7 +332,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ title: newTitle })
+                        body: JSON.stringify({ title: newTitle, csrf_token: '<?= $csrfToken ?>' })
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -340,7 +340,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             showToast('Title updated successfully!', 'success');
                             location.reload(); // Reload the page to reflect changes
                         } else {
-                            showToast('Failed to update title.', 'danger');
+                            showToast(data.message, 'danger');
                         }
                     })
                     .catch(error => {

@@ -26,6 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get the new title from the request body
         $data = json_decode(file_get_contents('php://input'), true);
         $newTitle = htmlspecialchars($data['title']);
+        $csrfTokenFromRequest = $data['csrf_token'];
+
+        // Verify CSRF Token
+        if (!verifyCsrfToken($csrfTokenFromRequest)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+            exit;
+        }
 
         // Update the dashboard title in the database
         $stmt = $pdo->prepare("INSERT INTO settings (key_name, value) VALUES ('dashboard_title', :title) 
