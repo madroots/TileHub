@@ -89,12 +89,12 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: bold;
             text-transform: uppercase;
         }
-                /* Settings Button */
+        /* Settings Button */
         .settings-button {
             position: fixed;
             right: 20px;
             top: 20px;
-            background-color: #333;
+            background-color: rgba(51, 51, 51, 0.3); /* Semi-transparent background */
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -103,13 +103,15 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             justify-content: center;
             cursor: pointer;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
+            opacity: 0.2; /* Start with low opacity */
         }
 
         .settings-button:hover {
             background-color: #444;
             transform: rotate(30deg);
+            opacity: 1; /* Full opacity on hover */
         }
 
         .settings-button svg {
