@@ -22,6 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => $success]);
         exit;
     }
+    
+    if (isset($_GET['action']) && $_GET['action'] === 'update_setting') {
+        // Get the setting key and value from the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        $key = htmlspecialchars($data['key']);
+        $value = htmlspecialchars($data['value']);
+
+        // Update the setting in the database
+        $stmt = $pdo->prepare("INSERT INTO settings (key_name, value) VALUES (:key, :value) 
+                               ON DUPLICATE KEY UPDATE value = :value");
+        $success = $stmt->execute(['key' => $key, 'value' => $value]);
+
+        // Return a JSON response
+        echo json_encode(['success' => $success]);
+        exit;
+    }
 
     $id = isset($_POST['id']) ? (int)$_POST['id'] : null;
     $title = htmlspecialchars($_POST['title']);

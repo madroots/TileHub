@@ -50,11 +50,14 @@
             const settingsOverlay = document.getElementById('settingsOverlay');
             const closeSettings = document.getElementById('closeSettings');
             const editModeToggle = document.getElementById('editModeToggle');
+            const showSettingsButtonToggle = document.getElementById('showSettingsButtonToggle');
 
             // Open settings overlay
-            settingsButton.addEventListener('click', function() {
-                settingsOverlay.classList.add('active');
-            });
+            if (settingsButton) {
+                settingsButton.addEventListener('click', function() {
+                    settingsOverlay.classList.add('active');
+                });
+            }
 
             // Close settings overlay
             closeSettings.addEventListener('click', function() {
@@ -63,19 +66,55 @@
 
             // Handle click outside to close
             document.addEventListener('click', function(event) {
-                if (!settingsOverlay.contains(event.target) && 
-                    !settingsButton.contains(event.target) && 
+                if (settingsOverlay && !settingsOverlay.contains(event.target) && 
+                    settingsButton && !settingsButton.contains(event.target) && 
                     settingsOverlay.classList.contains('active')) {
                     settingsOverlay.classList.remove('active');
                 }
             });
 
             // Toggle edit mode
-            editModeToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    window.location.href = '?edit=true';
-                } else {
-                    window.location.href = '?exit_edit=true';
-                }
-            });
+            if (editModeToggle) {
+                editModeToggle.addEventListener('change', function() {
+                    if (this.checked) {
+                        window.location.href = '?edit=true';
+                    } else {
+                        window.location.href = '?exit_edit=true';
+                    }
+                });
+            }
+
+            // Toggle settings button visibility
+            if (showSettingsButtonToggle) {
+                showSettingsButtonToggle.addEventListener('change', function() {
+                    // Send request to update setting
+                    fetch('edit_tile.php?action=update_setting', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            key: 'show_settings_button',
+                            value: this.checked ? 'true' : 'false'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to reflect changes
+                            location.reload();
+                        } else {
+                            alert('Failed to update setting.');
+                            // Revert the toggle if the update failed
+                            this.checked = !this.checked;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to update setting.');
+                        // Revert the toggle if the update failed
+                        this.checked = !this.checked;
+                    });
+                });
+            }
         });

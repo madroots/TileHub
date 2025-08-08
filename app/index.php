@@ -30,6 +30,14 @@ $stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'dashboard_ti
 $stmt->execute();
 $dashboardTitle = $stmt->fetchColumn() ?: 'TileHub Dashboard'; // Default to "TileHub Dashboard"
 
+// Fetch settings button visibility
+$stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'show_settings_button'");
+$stmt->execute();
+$showSettingsButton = $stmt->fetchColumn();
+if ($showSettingsButton === false) {
+    $showSettingsButton = 'true'; // Default to showing the button
+}
+
 // Fetch all groups
 $stmt = $pdo->query("SELECT id, name FROM groups ORDER BY position ASC");
 $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -65,6 +73,12 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php if (isset($_SESSION['edit_mode'])) : ?>
             <a href="?exit_edit=true" class="btn btn-danger mb-3">Exit Edit Mode</a>
             <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addTileModal">Add Tile</button>
+            
+            <!-- Settings Button Visibility Toggle -->
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="showSettingsButtonToggle" <?php echo $showSettingsButton === 'true' ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="showSettingsButtonToggle">Show Settings Button</label>
+            </div>
         <?php endif; ?>
         <div class="row" id="tile-container">
             <?php
@@ -230,12 +244,14 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/app.js"></script>
     <!-- Settings Button (fixed position) -->
+    <?php if ($showSettingsButton === 'true'): ?>
     <div class="settings-button" id="settingsButton">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
     </div>
+    <?php endif; ?>
 
     <!-- Settings Overlay -->
     <div class="settings-overlay" id="settingsOverlay">
