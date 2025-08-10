@@ -58,7 +58,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/styles.css" rel="stylesheet">
 </head>
-<body class="p-4">
+<body class="p-4 <?php echo isset($_SESSION['edit_mode']) ? 'edit-mode' : ''; ?>">
     <div class="container">
         <h1 class="mb-4" id="dashboard-title">
             <?php if (isset($_SESSION['edit_mode'])) : ?>
@@ -81,38 +81,67 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         <?php endif; ?>
         <div class="row" id="tile-container">
-            <?php
-            $currentGroupId = null;
-            foreach ($tiles as $tile) : ?>
-                <!-- Display Group Heading if Group Changes -->
-                <?php if ($currentGroupId !== $tile['group_id']) : ?>
-                    <?php $currentGroupId = $tile['group_id']; ?>
-                    <div class="col-12 group-header">
-                        <h2 class="text-primary"><?= htmlspecialchars($tile['group_name']) ?></h2>
-                        <hr>
+            <?php foreach ($groups as $group): 
+                // Filter tiles for this group
+                $groupTiles = array_filter($tiles, function($tile) use ($group) {
+                    return $tile['group_id'] == $group['id'];
+                });
+                ?>
+                <div class="group-container col-12" data-group-id="<?= $group['id'] ?>">
+                    <div class="group-header d-flex align-items-center mb-3">
+                        <h2 class="text-primary mb-0"><?= htmlspecialchars($group['name']) ?></h2>
+                        <?php if (isset($_SESSION['edit_mode'])) : ?>
+                            <div class="group-actions ms-2">
+                                <button type="button" class="btn btn-sm btn-warning edit-group-btn" 
+                                    data-group-id="<?= $group['id'] ?>" 
+                                    data-group-name="<?= htmlspecialchars($group['name']) ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger delete-group-btn" 
+                                    data-group-id="<?= $group['id'] ?>" 
+                                    data-group-name="<?= htmlspecialchars($group['name']) ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
-                <div class="col-md-4 col-sm-6 tile-item" data-id="<?= $tile['id'] ?>">
-                    <!-- Tile Link -->
-                    <a href="<?= htmlspecialchars($tile['url']) ?>" target="_blank" class="tile d-flex align-items-center">
-                        <img src="uploads/<?= htmlspecialchars($tile['icon']) ?>" alt="Icon">
-                        <span><?= htmlspecialchars($tile['title']) ?></span>
-                    </a>
-                    <!-- Edit and Delete Buttons -->
-                    <?php if (isset($_SESSION['edit_mode'])) : ?>
-                        <div class="edit-buttons mt-2">
-                            <button type="button" class="btn btn-sm btn-warning" 
-                                data-bs-toggle="modal" data-bs-target="#editTileModal" 
-                                data-id="<?= $tile['id'] ?>" 
-                                data-title="<?= htmlspecialchars($tile['title']) ?>" 
-                                data-url="<?= htmlspecialchars($tile['url']) ?>" 
-                                data-icon="<?= htmlspecialchars($tile['icon']) ?>"
-                                data-group-id="<?= $tile['group_id'] ?>">
-                                Edit
-                            </button>
-                            <a href="?delete=<?= $tile['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
-                        </div>
-                    <?php endif; ?>
+                    <div class="group-tiles row">
+                        <?php foreach ($groupTiles as $tile): ?>
+                            <div class="col-md-4 col-sm-6 tile-wrapper">
+                                <div class="tile-item" data-id="<?= $tile['id'] ?>" data-group-id="<?= $group['id'] ?>">
+                                    <!-- Tile Link -->
+                                    <a href="<?= htmlspecialchars($tile['url']) ?>" target="_blank" class="tile d-flex align-items-center">
+                                        <img src="uploads/<?= htmlspecialchars($tile['icon']) ?>" alt="Icon">
+                                        <span><?= htmlspecialchars($tile['title']) ?></span>
+                                    </a>
+                                    <!-- Edit and Delete Buttons -->
+                                    <?php if (isset($_SESSION['edit_mode'])) : ?>
+                                        <div class="edit-buttons mt-2">
+                                            <button type="button" class="btn btn-sm btn-warning" 
+                                                data-bs-toggle="modal" data-bs-target="#editTileModal" 
+                                                data-id="<?= $tile['id'] ?>" 
+                                                data-title="<?= htmlspecialchars($tile['title']) ?>" 
+                                                data-url="<?= htmlspecialchars($tile['url']) ?>" 
+                                                data-icon="<?= htmlspecialchars($tile['icon']) ?>"
+                                                data-group-id="<?= $tile['group_id'] ?>">
+                                                Edit
+                                            </button>
+                                            <a href="?delete=<?= $tile['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <hr class="mt-4 mb-4">
                 </div>
             <?php endforeach; ?>
         </div>
@@ -243,6 +272,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Local Scripts -->
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/interact.js"></script>
     <!-- Settings Button (fixed position) -->
     <?php if ($showSettingsButton === 'true'): ?>
     <div class="settings-button" id="settingsButton">

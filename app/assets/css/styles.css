@@ -37,6 +37,114 @@ body {
     font-weight: bold;
     text-transform: uppercase;
 }
+
+/* Edit mode styles */
+.edit-mode .tile-item {
+    border: 2px dotted #ff5722;
+    cursor: move;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.edit-mode .tile-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.edit-mode .tile {
+    pointer-events: none; /* Disable link click in edit mode */
+}
+
+.edit-mode .edit-buttons {
+    pointer-events: auto; /* Enable button clicks in edit mode */
+}
+
+/* Group actions */
+.group-actions {
+    display: flex;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.group-actions .btn {
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    color: #ff5722;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.group-actions .btn:hover {
+    opacity: 1;
+    background-color: rgba(255, 87, 34, 0.1);
+}
+
+.group-actions .btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Drag and drop styles */
+.drag-ghost {
+    opacity: 0.5;
+    background-color: rgba(255, 87, 34, 0.2);
+}
+
+.drag-chosen {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+}
+
+.drag-item {
+    z-index: 1000;
+}
+
+.tile-wrapper.drop-target {
+    background-color: rgba(255, 87, 34, 0.2);
+    border: 2px dashed #ff5722;
+    border-radius: 10px;
+    transform: scale(0.95);
+}
+
+.group-container.drop-target {
+    background-color: rgba(255, 87, 34, 0.2);
+    border: 2px dashed #ff5722;
+    border-radius: 10px;
+}
+
+.tile-item.can-drop {
+    box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
+}
+
+.tile-wrapper.shifting {
+    transition: transform 0.3s ease;
+}
+
+.group-container.dragging {
+    opacity: 0.7;
+    z-index: 1000;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Edit mode indicator */
+.edit-mode-indicator {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #ff5722;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 999;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+}
 /* Settings Button */
 .settings-button {
     position: fixed;

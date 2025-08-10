@@ -14,6 +14,78 @@
             });
         });
 
+        // Group editing functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.edit-group-btn')) {
+                const button = e.target.closest('.edit-group-btn');
+                const groupId = button.getAttribute('data-group-id');
+                const groupName = button.getAttribute('data-group-name');
+                
+                // Prompt for new group name
+                const newGroupName = prompt('Enter new name for group "' + groupName + '":', groupName);
+                
+                if (newGroupName !== null && newGroupName.trim() !== '' && newGroupName !== groupName) {
+                    // Send request to update group name
+                    fetch('edit_tile.php?action=update_group_name', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            id: groupId,
+                            name: newGroupName.trim()
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to reflect changes
+                            location.reload();
+                        } else {
+                            alert('Failed to update group name: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to update group name.');
+                    });
+                }
+            }
+            
+            // Group deletion confirmation
+            if (e.target.closest('.delete-group-btn')) {
+                const button = e.target.closest('.delete-group-btn');
+                const groupId = button.getAttribute('data-group-id');
+                const groupName = button.getAttribute('data-group-name');
+                
+                if (confirm('Are you sure you want to delete the group "' + groupName + '"? All tiles in this group will be moved to another group.')) {
+                    // Send request to delete group
+                    fetch('edit_tile.php?action=delete_group', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            id: groupId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to reflect changes
+                            location.reload();
+                        } else {
+                            alert('Failed to delete group: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to delete group.');
+                    });
+                }
+            }
+        });
+
         // Save Dashboard Title
         document.addEventListener('DOMContentLoaded', function () {
             const editableTitle = document.getElementById('editable-title');
