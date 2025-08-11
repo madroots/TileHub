@@ -22,6 +22,157 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => $success]);
         exit;
     }
+    
+    if (isset($_GET['action']) && $_GET['action'] === 'update_setting') {
+        // Get the setting key and value from the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        $key = htmlspecialchars($data['key']);
+        $value = htmlspecialchars($data['value']);
+
+        // Update the setting in the database
+        $stmt = $pdo->prepare("INSERT INTO settings (key_name, value) VALUES (:key, :value) 
+                               ON DUPLICATE KEY UPDATE value = :value");
+        $success = $stmt->execute(['key' => $key, 'value' => $value]);
+
+        // Return a JSON response
+        echo json_encode(['success' => $success]);
+        exit;
+    }
+    
+    if (isset($_GET['action']) && $_GET['action'] === 'update_tile_positions') {
+        // Get the tile positions from the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        $tiles = $data['tiles'];
+        
+        try {
+            // Begin transaction
+            $pdo->beginTransaction();
+            
+            // Update each tile's position and group
+            foreach ($tiles as $tile) {
+                $stmt = $pdo->prepare("UPDATE tiles SET position = :position, group_id = :group_id WHERE id = :id");
+                $stmt->execute([
+                    'position' => (int)$tile['position'],
+                    'group_id' => (int)$tile['group_id'],
+                    'id' => (int)$tile['id']
+                ]);
+            }
+            
+            // Commit transaction
+            $pdo->commit();
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $pdo->rollback();
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        
+        exit;
+    }
+    
+    if (isset($_GET['action']) && $_GET['action'] === 'update_group_positions') {
+        // Get the group positions from the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        $groups = $data['groups'];
+        
+        try {
+            // Begin transaction
+            $pdo->beginTransaction();
+            
+            // Update each group's position
+            foreach ($groups as $group) {
+                $stmt = $pdo->prepare("UPDATE groups SET position = :position WHERE id = :id");
+                $stmt->execute([
+                    'position' => (int)$group['position'],
+                    'id' => (int)$group['id']
+                ]);
+            }
+            
+            // Commit transaction
+            $pdo->commit();
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $pdo->rollback();
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        
+        exit;
+    }
+    
+    if (isset($_GET['action']) && $_GET['action'] === 'update_group_name') {
+        // Get the group data from the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        $groupId = (int)$data['id'];
+        $newName = htmlspecialchars($data['name']);
+        
+        try {
+            // Update the group name in the database
+            $stmt = $pdo->prepare("UPDATE groups SET name = :name WHERE id = :id");
+            $success = $stmt->execute([
+                'name' => $newName,
+                'id' => $groupId
+            ]);
+            
+            // Return a JSON response
+            echo json_encode(['success' => $success]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        
+        exit;
+    }
+    
+    if (isset($_GET['action']) && $_GET['action'] === 'delete_group') {
+        // Get the group data from the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        $groupId = (int)$data['id'];
+        
+        try {
+            // Begin transaction
+            $pdo->beginTransaction();
+            
+            // Check if this is the last group
+            $stmt = $pdo->query("SELECT COUNT(*) FROM groups");
+            $groupCount = $stmt->fetchColumn();
+            
+            if ($groupCount <= 1) {
+                throw new Exception("Cannot delete the last group. At least one group must exist.");
+            }
+            
+            // Get the first available group to move tiles to
+            $stmt = $pdo->prepare("SELECT id FROM groups WHERE id != :id ORDER BY position ASC LIMIT 1");
+            $stmt->execute(['id' => $groupId]);
+            $newGroupId = $stmt->fetchColumn();
+            
+            if (!$newGroupId) {
+                throw new Exception("No other groups available to move tiles to.");
+            }
+            
+            // Move all tiles from the group being deleted to the new group
+            $stmt = $pdo->prepare("UPDATE tiles SET group_id = :new_group_id WHERE group_id = :old_group_id");
+            $stmt->execute([
+                'new_group_id' => $newGroupId,
+                'old_group_id' => $groupId
+            ]);
+            
+            // Delete the group
+            $stmt = $pdo->prepare("DELETE FROM groups WHERE id = :id");
+            $success = $stmt->execute(['id' => $groupId]);
+            
+            // Commit transaction
+            $pdo->commit();
+            
+            // Return a JSON response
+            echo json_encode(['success' => $success]);
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $pdo->rollback();
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        
+        exit;
+    }
 
     $id = isset($_POST['id']) ? (int)$_POST['id'] : null;
     $title = htmlspecialchars($_POST['title']);
@@ -43,19 +194,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get the new group's ID
         $groupId = $pdo->lastInsertId();
     } elseif ($groupId === null) {
-        // Default to the "Uncategorized" group if no group is selected
-        $stmt = $pdo->prepare("SELECT id FROM groups WHERE name = 'Uncategorized'");
-        $stmt->execute();
+        // Default to the first available group
+        $stmt = $pdo->query("SELECT id FROM groups ORDER BY position ASC LIMIT 1");
         $groupData = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($groupData) {
             $groupId = $groupData['id'];
         } else {
-            // If "Uncategorized" group doesn't exist, create it
+            // If no groups exist, create a default one
             $stmt = $pdo->query("SELECT IFNULL(MAX(position), 0) AS max_position FROM groups");
             $maxPosition = $stmt->fetchColumn();
             $newGroupPosition = $maxPosition + 1;
 
-            $stmt = $pdo->prepare("INSERT INTO groups (name, position) VALUES ('Uncategorized', :position)");
+            $stmt = $pdo->prepare("INSERT INTO groups (name, position) VALUES ('Default', :position)");
             $stmt->execute(['position' => $newGroupPosition]);
 
             $groupId = $pdo->lastInsertId();

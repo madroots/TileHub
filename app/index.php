@@ -28,7 +28,15 @@ if (isset($_GET['edit']) && $_GET['edit'] === 'true') {
 // Fetch dashboard title
 $stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'dashboard_title'");
 $stmt->execute();
-$dashboardTitle = $stmt->fetchColumn() ?: 'Dashboard';
+$dashboardTitle = $stmt->fetchColumn() ?: 'Dashboard'; // Default to "Dashboard" from test-branch
+
+// Fetch settings button visibility
+$stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'show_settings_button'");
+$stmt->execute();
+$showSettingsButton = $stmt->fetchColumn();
+if ($showSettingsButton === false) {
+    $showSettingsButton = 'true'; // Default to showing the button
+}
 
 // Fetch all groups
 $stmt = $pdo->query("SELECT id, name FROM groups ORDER BY position ASC");
@@ -46,52 +54,11 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <!-- Bootstrap CSS via CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #121212;
-            color: #fff;
-        }
-        .tile {
-            background-color: #212121;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
-        }
-        .tile:hover {
-            background-color: #333;
-        }
-        .tile img {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-        }
-        .form-label {
-            color: #000; /* Dark text for form labels */
-        }
-        .group-header {
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        .edit-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .group-header h2 {
-            color: #ff5722 !important; /* Custom group title color */
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-    </style>
+    <title>TileHub Dashboard</title>
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/styles.css" rel="stylesheet">
 </head>
-<body class="p-4">
+<body class="p-4 <?php echo isset($_SESSION['edit_mode']) ? 'edit-mode' : ''; ?>">
     <div class="container">
         <h1 class="mb-4" id="dashboard-title">
             <?php if (isset($_SESSION['edit_mode'])) : ?>
@@ -106,40 +73,75 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php if (isset($_SESSION['edit_mode'])) : ?>
             <a href="?exit_edit=true" class="btn btn-danger mb-3">Exit Edit Mode</a>
             <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addTileModal">Add Tile</button>
+            
+            <!-- Settings Button Visibility Toggle -->
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="showSettingsButtonToggle" <?php echo $showSettingsButton === 'true' ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="showSettingsButtonToggle">Show Settings Button</label>
+            </div>
         <?php endif; ?>
         <div class="row" id="tile-container">
-            <?php
-            $currentGroupId = null;
-            foreach ($tiles as $tile) : ?>
-                <!-- Display Group Heading if Group Changes -->
-                <?php if ($currentGroupId !== $tile['group_id']) : ?>
-                    <?php $currentGroupId = $tile['group_id']; ?>
-                    <div class="col-12 group-header">
-                        <h2 class="text-primary"><?= htmlspecialchars($tile['group_name']) ?></h2>
-                        <hr>
+            <?php foreach ($groups as $group): 
+                // Filter tiles for this group
+                $groupTiles = array_filter($tiles, function($tile) use ($group) {
+                    return $tile['group_id'] == $group['id'];
+                });
+                ?>
+                <div class="group-container col-12" data-group-id="<?= $group['id'] ?>">
+                    <div class="group-header d-flex align-items-center mb-3">
+                        <h2 class="text-primary mb-0"><?= htmlspecialchars($group['name']) ?></h2>
+                        <?php if (isset($_SESSION['edit_mode'])) : ?>
+                            <div class="group-actions ms-2">
+                                <button type="button" class="btn btn-sm btn-warning edit-group-btn" 
+                                    data-group-id="<?= $group['id'] ?>" 
+                                    data-group-name="<?= htmlspecialchars($group['name']) ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger delete-group-btn" 
+                                    data-group-id="<?= $group['id'] ?>" 
+                                    data-group-name="<?= htmlspecialchars($group['name']) ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
-                <div class="col-md-4 col-sm-6 tile-item" data-id="<?= $tile['id'] ?>">
-                    <!-- Tile Link -->
-                    <a href="<?= htmlspecialchars($tile['url']) ?>" target="_blank" class="tile d-flex align-items-center">
-                        <img src="uploads/<?= htmlspecialchars($tile['icon']) ?>" alt="Icon">
-                        <span><?= htmlspecialchars($tile['title']) ?></span>
-                    </a>
-                    <!-- Edit and Delete Buttons -->
-                    <?php if (isset($_SESSION['edit_mode'])) : ?>
-                        <div class="edit-buttons mt-2">
-                            <button type="button" class="btn btn-sm btn-warning" 
-                                data-bs-toggle="modal" data-bs-target="#editTileModal" 
-                                data-id="<?= $tile['id'] ?>" 
-                                data-title="<?= htmlspecialchars($tile['title']) ?>" 
-                                data-url="<?= htmlspecialchars($tile['url']) ?>" 
-                                data-icon="<?= htmlspecialchars($tile['icon']) ?>"
-                                data-group-id="<?= $tile['group_id'] ?>">
-                                Edit
-                            </button>
-                            <a href="?delete=<?= $tile['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
-                        </div>
-                    <?php endif; ?>
+                    <hr class="mt-0 mb-4">
+                    <div class="group-tiles row">
+                        <?php foreach ($groupTiles as $tile): ?>
+                            <div class="col-md-4 col-sm-6 tile-wrapper">
+                                <div class="tile-item" data-id="<?= $tile['id'] ?>" data-group-id="<?= $group['id'] ?>">
+                                    <!-- Tile Link -->
+                                    <a href="<?= htmlspecialchars($tile['url']) ?>" target="_blank" class="tile d-flex align-items-center">
+                                        <img src="uploads/<?= htmlspecialchars($tile['icon']) ?>" alt="Icon">
+                                        <span><?= htmlspecialchars($tile['title']) ?></span>
+                                    </a>
+                                    <!-- Edit and Delete Buttons -->
+                                    <?php if (isset($_SESSION['edit_mode'])) : ?>
+                                        <div class="edit-buttons mt-2">
+                                            <button type="button" class="btn btn-sm btn-warning" 
+                                                data-bs-toggle="modal" data-bs-target="#editTileModal" 
+                                                data-id="<?= $tile['id'] ?>" 
+                                                data-title="<?= htmlspecialchars($tile['title']) ?>" 
+                                                data-url="<?= htmlspecialchars($tile['url']) ?>" 
+                                                data-icon="<?= htmlspecialchars($tile['icon']) ?>"
+                                                data-group-id="<?= $tile['group_id'] ?>">
+                                                Edit
+                                            </button>
+                                            <a href="?delete=<?= $tile['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -267,55 +269,38 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
-    <!-- Bootstrap JS and Popper.js via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Populate edit modal fields
-        document.querySelectorAll('[data-bs-target="#editTileModal"]').forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                const title = this.getAttribute('data-title');
-                const url = this.getAttribute('data-url');
-                const icon = this.getAttribute('data-icon');
-                const groupId = this.getAttribute('data-group-id');
-                document.getElementById('editId').value = id;
-                document.getElementById('editTitle').value = title;
-                document.getElementById('editUrl').value = url;
-                document.getElementById('editIcon').value = icon; // Pre-select the icon
-                document.getElementById('editGroup').value = groupId; // Pre-fill the group name
-            });
-        });
+    <!-- Local Scripts -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/interact.js"></script>
+    <!-- Settings Button (fixed position) -->
+    <?php if ($showSettingsButton === 'true'): ?>
+    <div class="settings-button" id="settingsButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+    </div>
+    <?php endif; ?>
 
-        // Save Dashboard Title
-        document.addEventListener('DOMContentLoaded', function () {
-            const editableTitle = document.getElementById('editable-title');
-            const saveButton = document.getElementById('save-title');
-
-            if (editableTitle && saveButton) {
-                saveButton.addEventListener('click', function () {
-                    const newTitle = editableTitle.value;
-
-                    // Send the updated title to the server
-                    fetch('edit_tile.php?action=update_title', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ title: newTitle })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Title updated successfully!');
-                            location.reload(); // Reload the page to reflect changes
-                        } else {
-                            alert('Failed to update title.');
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-                });
-            }
-        });
-    </script>
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h3>Settings</h3>
+                <button class="close-settings" id="closeSettings">&times;</button>
+            </div>
+            <div class="settings-body">
+                <div class="setting-item">
+                    <span>Edit Mode</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="editModeToggle" <?php echo isset($_SESSION['edit_mode']) ? 'checked' : ''; ?>>
+                        <label for="editModeToggle"></label>
+                    </div>
+                </div>
+                <!-- More settings here in the future -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>

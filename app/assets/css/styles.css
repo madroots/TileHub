@@ -1,0 +1,281 @@
+body {
+    background-color: #121212;
+    color: #fff;
+}
+.tile {
+    background-color: #212121;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+}
+.tile:hover {
+    background-color: #333;
+}
+.tile img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+.form-label {
+    color: #000; /* Dark text for form labels */
+}
+.group-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.edit-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    margin-bottom: 20px;
+}
+.group-header h2 {
+    color: #ff5722 !important; /* Custom group title color */
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Edit mode styles */
+.edit-mode .tile {
+    border: 1px dotted rgba(255, 87, 34, 0.7);
+    border-radius: 10px;
+    cursor: move;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.edit-mode .tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.edit-mode .tile-item {
+    cursor: move;
+}
+
+.edit-mode .tile {
+    pointer-events: none; /* Disable link click in edit mode */
+}
+
+.edit-mode .edit-buttons {
+    pointer-events: auto; /* Enable button clicks in edit mode */
+}
+
+/* Group actions */
+.group-actions {
+    display: flex;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.group-actions .btn {
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    color: #ff5722;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.group-actions .btn:hover {
+    opacity: 1;
+    background-color: rgba(255, 87, 34, 0.1);
+}
+
+.group-actions .btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Drag and drop styles */
+.drag-ghost {
+    opacity: 0.5;
+    background-color: rgba(255, 87, 34, 0.2);
+}
+
+.drag-chosen {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02);
+}
+
+.drag-item {
+    z-index: 1000;
+}
+
+.tile-wrapper.drop-target {
+    background-color: rgba(255, 87, 34, 0.2);
+    border: 2px dashed #ff5722;
+    border-radius: 10px;
+    transform: scale(0.95);
+}
+
+.group-container.drop-target {
+    background-color: rgba(255, 87, 34, 0.2);
+    border: 2px dashed #ff5722;
+    border-radius: 10px;
+}
+
+.tile-item.can-drop {
+    box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
+}
+
+.tile-wrapper.shifting {
+    transition: transform 0.3s ease;
+}
+
+.group-container.dragging {
+    opacity: 0.7;
+    z-index: 1000;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Edit mode indicator */
+.edit-mode-indicator {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 87, 34, 0.9);
+    color: white;
+    padding: 8px;
+    text-align: center;
+    font-weight: normal;
+    font-size: 14px;
+    z-index: 999;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+}
+/* Settings Button */
+.settings-button {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    background-color: rgba(51, 51, 51, 0.3); /* Semi-transparent background */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    opacity: 0.2; /* Start with low opacity */
+}
+
+.settings-button:hover {
+    background-color: #444;
+    transform: rotate(30deg);
+    opacity: 1; /* Full opacity on hover */
+}
+
+.settings-button svg {
+    color: #ff5722;
+}
+
+/* Settings Overlay */
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Start off-screen */
+    width: 300px;
+    height: 100%;
+    background-color: #212121;
+    z-index: 1001;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.settings-overlay.active {
+    right: 0;
+}
+
+.settings-content {
+    padding: 20px;
+    color: #fff;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.settings-header h3 {
+    margin: 0;
+    color: #ff5722;
+}
+
+.close-settings {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Settings Items */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #333;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-switch label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #444;
+    border-radius: 34px;
+    cursor: pointer;
+    transition: .4s;
+}
+
+.toggle-switch label:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+.toggle-switch input:checked + label {
+    background-color: #ff5722;
+}
+
+.toggle-switch input:checked + label:before {
+    transform: translateX(29px);
+}

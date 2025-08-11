@@ -20,5 +20,5 @@ CREATE TABLE IF NOT EXISTS settings (
     value TEXT DEFAULT NULL
 );
 
-INSERT IGNORE INTO settings (key_name, value) VALUES ('dashboard_title', 'Dashboard');
-INSERT IGNORE INTO groups (name, position) VALUES ('Uncategorized', 1);
+INSERT IGNORE INTO settings (key_name, value) VALUES ('dashboard_title', 'TileHub Dashboard');
+INSERT IGNORE INTO settings (key_name, value) VALUES ('show_settings_button', 'true');
