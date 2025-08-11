@@ -1,11 +1,9 @@
 
 ![tilehub_banner](https://github.com/user-attachments/assets/4550871c-0d47-4507-bc59-87ac672ae316)
 
-
 # TileHub
 
 TileHub is a simple and customizable dashboard application that allows you to manage and display tiles with URLs and icons.
-
 
 ## ⭐ Features
 
@@ -13,18 +11,16 @@ TileHub is a simple and customizable dashboard application that allows you to ma
 - **Group Organization**: Organize tiles into groups
 - **Icon Upload**: Upload custom icons for tiles (SVG supported)
 - **Responsive Design**: Viewable on various devices
-- **Drag & Drop Reordering**: Easily reorder tiles and groups with smooth drag and drop functionality
-- **Group Management**: Rename or delete groups directly from the interface
+- **Drag & Drop Reordering**: Easily reorder tiles and groups
+- **Group Management**: Rename or delete groups
 - **Discreet Edit Access**: Access edit mode via `?edit=true` parameter (gear icon can be hidden)
-
 
 ## 🚩 Known Issues / To Do
 
 - *No major issues currently reported.*
 
 > [!WARNING]  
-> **No Authentication**: Designed for trusted home networks, TileHub omits authentication to keep things simple. Since the risk is minimal, this was a deliberate choice, though future support may be added.
-
+> **No Authentication**: Designed for trusted home networks. TileHub omits authentication to keep things simple.
 
 ## 🛠️ Installation
 
