@@ -113,6 +113,7 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         <?php endif; ?>
                     </div>
+                    <hr class="mt-0 mb-4">
                     <div class="group-tiles row">
                         <?php foreach ($groupTiles as $tile): ?>
                             <div class="col-md-4 col-sm-6 tile-wrapper">
@@ -141,7 +142,6 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <hr class="mt-4 mb-4">
                 </div>
             <?php endforeach; ?>
         </div>

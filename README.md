@@ -13,13 +13,17 @@ TileHub is a simple and customizable dashboard application that allows you to ma
 - **Group Organization**: Organize tiles into groups.  
 - **Icon Upload**: Upload custom icons for tiles. SVG supported.
 - **Responsive Design**: Viewable on various devices.  
-- **Editable Mode**: Toggle between view and edit modes.<br/>
+- **Editable Mode**: Toggle between view and edit modes.
+- **Drag & Drop Reordering**: Easily reorder tiles and groups with smooth drag and drop functionality.
+- **Group Management**: Rename or delete groups directly from the interface.
+- **Visual Edit Indicators**: Clear visual cues for edit mode with orange dotted borders around tiles.
+- **Settings Panel**: Access settings through the gear icon for quick toggles.<br/>
 
 
 
 ## 🚩 Known Issues / To Do
 
-- **Tile Ordering**: It is not possible to change order of Tiles from web UI yet. It can be changed inside DB though.<br/>
+- *No major issues currently reported.*<br/>
 
 > [!WARNING]  
 > **No Authentication**: Designed for trusted home networks, TileHub omits authentication to keep things simple. Since the risk is minimal, this was a deliberate choice, though future support may be added.<br/>

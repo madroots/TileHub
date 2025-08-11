@@ -30,6 +30,8 @@ body {
 .edit-buttons {
     display: flex;
     gap: 10px;
+    margin-top: 8px;
+    margin-bottom: 20px;
 }
 .group-header h2 {
     color: #ff5722 !important; /* Custom group title color */
@@ -39,16 +41,21 @@ body {
 }
 
 /* Edit mode styles */
-.edit-mode .tile-item {
-    border: 2px dotted #ff5722;
+.edit-mode .tile {
+    border: 1px dotted rgba(255, 87, 34, 0.7);
+    border-radius: 10px;
     cursor: move;
     transition: all 0.2s ease;
     position: relative;
 }
 
-.edit-mode .tile-item:hover {
+.edit-mode .tile:hover {
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.edit-mode .tile-item {
+    cursor: move;
 }
 
 .edit-mode .tile {
@@ -136,14 +143,15 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #ff5722;
+    background-color: rgba(255, 87, 34, 0.9);
     color: white;
-    padding: 12px;
+    padding: 8px;
     text-align: center;
-    font-weight: bold;
-    font-size: 16px;
+    font-weight: normal;
+    font-size: 14px;
     z-index: 999;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
 }
 /* Settings Button */
 .settings-button {
