@@ -7,12 +7,10 @@ TileHub is a simple and customizable dashboard application that allows you to ma
 
 ## ⭐ Features
 
-- **Tile Management**: Add, edit, and delete tiles
-- **Group Organization**: Organize tiles into groups
+- **Tile Management**: Add, edit, delete and drag and drop tiles to organize
 - **Icon Upload**: Upload custom icons for tiles (SVG supported)
-- **Responsive Design**: Viewable on various devices
-- **Drag & Drop Reordering**: Easily reorder tiles and groups
-- **Group Management**: Rename or delete groups
+- **Responsive Design**: Looking good on mobile and desktop
+- **Group Management**: Add, rename, delete and drag and drop groups
 - **Discreet Edit Access**: Access edit mode via `?edit=true` parameter (gear icon can be hidden)
 
 ## 🚩 Known Issues / To Do
@@ -38,7 +36,7 @@ TileHub is a simple and customizable dashboard application that allows you to ma
    nano .env
    ```
    
-   Change the database password to your own.
+   Change the database password to your own (or don't)
 
 3. **Run**
 
