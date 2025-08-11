@@ -4,6 +4,7 @@
 # TileHub
 
 TileHub is a simple and customizable dashboard application that allows you to manage and display tiles with URLs and icons.
+Works best for new browser tab with an extension like Custom New Tab URL Options or similar. 
 
 ## ⭐ Features
 
