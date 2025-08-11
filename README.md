@@ -13,6 +13,8 @@ TileHub is a simple and customizable dashboard application that allows you to ma
 - **Group Management**: Add, rename, delete and drag and drop groups
 - **Discreet Edit Access**: Access edit mode via `?edit=true` parameter (gear icon can be hidden)
 
+## 🎥 Demo video
+
 https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
 
 ## 🚩 Known Issues / To Do
