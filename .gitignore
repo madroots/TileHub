@@ -1,2 +1,2 @@
 # Ignore upload files to avoid legal issues with copyrighted icons
-app/uploads/*
+#app/uploads/*
