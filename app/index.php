@@ -38,6 +38,11 @@ if ($showSettingsButton === false) {
     $showSettingsButton = 'true'; // Default to showing the button
 }
 
+// Fetch version
+$stmt = $pdo->prepare("SELECT value FROM settings WHERE key_name = 'version'");
+$stmt->execute();
+$appVersion = $stmt->fetchColumn() ?: '1.0.0'; // Default to "1.0.0"
+
 // Fetch all groups
 $stmt = $pdo->query("SELECT id, name FROM groups ORDER BY position ASC");
 $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -297,6 +302,10 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="checkbox" id="editModeToggle" <?php echo isset($_SESSION['edit_mode']) ? 'checked' : ''; ?>>
                         <label for="editModeToggle"></label>
                     </div>
+                </div>
+                <!-- Version display -->
+                <div class="setting-item">
+                    <span>Version: <?php echo htmlspecialchars($appVersion); ?></span>
                 </div>
                 <!-- More settings here in the future -->
             </div>
