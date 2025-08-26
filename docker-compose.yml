@@ -1,6 +1,9 @@
 services:
   app:
+    # For development, build from local Dockerfile
     build: .
+    # For production, uncomment the following line and comment out the 'build' line above
+    # image: ${DOCKERHUB_USERNAME:-yourdockerhubusername}/${IMAGE_NAME:-tilehub}:${TAG:-latest}
     volumes:
       - ./app:/var/www/html
     depends_on:

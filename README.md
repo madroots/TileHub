@@ -27,6 +27,8 @@ https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
 
 ## 🛠️ Installation
 
+### Option 1: Using Docker Compose (Recommended for development)
+
 1. **Clone the Repository**
 
    ```bash
@@ -50,6 +52,38 @@ https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
    ```
 
 App runs on `localhost:5200` unless you changed the port in `docker-compose.yml` 🥳
+
+### Option 2: Using Pre-built Docker Image (Recommended for production)
+
+You can use the pre-built Docker image from Docker Hub:
+
+```bash
+# Pull the latest image
+docker pull yourdockerhubusername/tilehub:latest
+
+# Run with docker-compose using the pre-built image
+docker-compose up -d
+```
+
+### Automated Builds with GitHub Actions
+
+This repository is configured with GitHub Actions to automatically build and push Docker images to Docker Hub when changes are pushed to the main branch or when new tags are created.
+
+To set up automated builds:
+
+1. Fork this repository or push it to your own GitHub account
+2. Create a Docker Hub account if you don't have one
+3. Create a repository on Docker Hub (e.g., `tilehub`)
+4. In your GitHub repository settings, add the following secrets:
+   - `DOCKERHUB_USERNAME` - Your Docker Hub username
+   - `DOCKERHUB_TOKEN` - Docker Hub access token (generate one in Docker Hub account settings)
+   - `IMAGE_NAME` - The name of your Docker Hub repository (e.g., `tilehub`)
+5. Push changes to your repository to trigger the first build
+
+Images will be tagged as follows:
+- `latest` for pushes to the main branch
+- Version numbers for git tags (e.g., `v1.0.0` creates tags `1.0.0`, `1.0`, and `latest`)
+- Commit SHA for other branches
 
 ## 📌 FAQ
 

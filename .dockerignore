@@ -1,0 +1,29 @@
+# Git files
+.git
+.gitignore
+
+# Environment files
+.env
+
+# Docker files
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# IDE files
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# GitHub Actions
+.github/
+
+# README and documentation
+README.md
+LICENSE
