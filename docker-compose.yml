@@ -19,8 +19,6 @@ services:
     image: madroots/tilehub-nginx:test
     ports:
       - "5200:80"
-    volumes:
-      - ./app:/var/www/html
     depends_on:
       - tilehub-app
     networks:
