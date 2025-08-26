@@ -1,6 +1,7 @@
 services:
   tilehub-app:
-    image: madroots/tilehub:latest
+    build: .
+    image: madroots/tilehub:test
     volumes:
       - ./app:/var/www/html
     depends_on:
