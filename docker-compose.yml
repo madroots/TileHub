@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   tilehub-app:
     image: madroots/tilehub-app:latest
