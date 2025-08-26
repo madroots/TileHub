@@ -77,7 +77,7 @@ jobs:
       - name: Build and push Nginx Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./custom-images/nginx
+          context: .
           file: ./custom-images/nginx/Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
