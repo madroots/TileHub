@@ -38,11 +38,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata for Docker
-        id: meta
+      - name: Extract metadata for Docker (App)
+        id: meta-app
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/tilehub-app
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -51,12 +51,58 @@ jobs:
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
+      - name: Build and push App Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-app.outputs.tags }}
+          labels: ${{ steps.meta-app.outputs.labels }}
+
+      - name: Extract metadata for Docker (Nginx)
+        id: meta-nginx
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/tilehub-nginx
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Nginx Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./custom-images/nginx/Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-nginx.outputs.tags }}
+          labels: ${{ steps.meta-nginx.outputs.labels }}
+
+      - name: Extract metadata for Docker (MariaDB)
+        id: meta-mariadb
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/tilehub-mariadb
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push MariaDB Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./custom-images/mariadb
+          file: ./custom-images/mariadb/Dockerfile
+          platforms: linux/amd64,linux/arm64  # Removed linux/arm/v7 as it's not supported by MariaDB 10.11
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-mariadb.outputs.tags }}
+          labels: ${{ steps.meta-mariadb.outputs.labels }}

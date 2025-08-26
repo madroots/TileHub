@@ -27,26 +27,34 @@ https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
 
 ## 🛠️ Installation
 
+### Option 1: Using Docker Compose (Recommended for development)
+
 1. **Clone the Repository**
 
    ```bash
    git clone https://github.com/madroots/TileHub.git && cd TileHub
    ```
 
-2. **Edit Database Password**
-
-   Open `.env` with your preferred text editor:
-   
-   ```bash
-   nano .env
-   ```
-   
-   Change the database password to your own (or don't)
-
-3. **Run**
+2. **Run**
 
    ```bash
    docker-compose up -d --build
+   ```
+
+### Option 2: Using Pre-built Docker Images (Recommended for production)
+
+1. **Download the docker-compose.user.yml file**
+
+   ```bash
+   curl -O https://raw.githubusercontent.com/madroots/TileHub/main/docker-compose.user.yml
+   curl -O https://raw.githubusercontent.com/madroots/TileHub/main/app.zip
+   unzip app.zip
+   ```
+
+2. **Run**
+
+   ```bash
+   docker-compose -f docker-compose.user.yml up -d
    ```
 
 App runs on `localhost:5200` unless you changed the port in `docker-compose.yml` 🥳
