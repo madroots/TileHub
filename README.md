@@ -32,8 +32,6 @@ https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
 Simply copy the following docker-compose.yml content to a file and run:
 
 ```yaml
-version: '3.8'
-
 services:
   tilehub-app:
     image: madroots/tilehub-app:latest
