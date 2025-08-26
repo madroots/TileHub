@@ -1,40 +1,40 @@
+version: '3.8'
+
 services:
   tilehub-app:
     build: .
     image: madroots/tilehub:test
-    volumes:
-      - ./app:/var/www/html
     depends_on:
       - tilehub-db
     environment:
       - DB_HOST=tilehub-db
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
+      - DB_NAME=tilehubdb
+      - DB_USER=tilehubuser
+      - DB_PASS=tilehubpass
     networks:
       - tilehub-network
 
   tilehub-web:
-    image: nginx:latest
+    build: ./custom-images/nginx
+    image: madroots/tilehub-nginx:test
     ports:
       - "5200:80"
     volumes:
       - ./app:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - tilehub-app
     networks:
       - tilehub-network
 
   tilehub-db:
-    image: mariadb:11
+    build: ./custom-images/mariadb
+    image: madroots/tilehub-mariadb:test
     environment:
-      MYSQL_ROOT_PASSWORD: ${ROOT_DB_PASS}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tilehubdb
+      MYSQL_USER: tilehubuser
+      MYSQL_PASSWORD: tilehubpass
     volumes:
-      - ./docker/mariadb-init/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
     networks:
       - tilehub-network
