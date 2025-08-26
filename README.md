@@ -27,8 +27,6 @@ https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
 
 ## 🛠️ Installation
 
-### Option 1: Using Docker Compose (Recommended for development)
-
 1. **Clone the Repository**
 
    ```bash
@@ -53,37 +51,35 @@ https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
 
 App runs on `localhost:5200` unless you changed the port in `docker-compose.yml` 🥳
 
-### Option 2: Using Pre-built Docker Image (Recommended for production)
+## 📌 FAQ
 
-You can use the pre-built Docker image from Docker Hub:
+**Q: Why TileHub over something else?**  
+A: I like to keep things simple. Click and done. With lots of opensource projects these days, Its hard to keep stuff in our heads. You don't need to remember anything with TileHub - its made to be straightfoward and simple to setup. Think of it as your personal "start page" with no learning curve.
 
-```bash
-# Pull the latest image
-docker pull yourdockerhubusername/tilehub:latest
+---
 
-# Run with docker-compose using the pre-built image
-docker-compose up -d
-```
+**Q: Is there any authentication or login system?**  
+A: Not at the moment. Anyone who can access your TileHub instance can edit tiles if they know the `?edit=true` URL parameter. If you need security, consider running TileHub behind a reverse proxy with HTTP authentication or limiting access via your network/firewall. Auth can be added at any point in the future if requested though.
 
-### Automated Builds with GitHub Actions
+---
 
-This repository is configured with GitHub Actions to automatically build and push Docker images to Docker Hub when changes are pushed to the main branch or when new tags are created.
+**Q: How do I enter edit mode?**  
+A: Add `?edit=true` to the end of your TileHub URL (e.g., `http://localhost:5200/?edit=true`). This will enable tile and group editing options. Or use Settings button if you enabled it.
 
-To set up automated builds:
+---
 
-1. Fork this repository or push it to your own GitHub account
-2. Create a Docker Hub account if you don't have one
-3. Create a repository on Docker Hub (e.g., `tilehub`)
-4. In your GitHub repository settings, add the following secrets:
-   - `DOCKERHUB_USERNAME` - Your Docker Hub username
-   - `DOCKERHUB_TOKEN` - Docker Hub access token (generate one in Docker Hub account settings)
-   - `IMAGE_NAME` - The name of your Docker Hub repository (e.g., `tilehub`)
-5. Push changes to your repository to trigger the first build
+**Q: Can I back up my tiles?**  
+A: Not yet, but export and import is planned!
 
-Images will be tagged as follows:
-- `latest` for pushes to the main branch
-- Version numbers for git tags (e.g., `v1.0.0` creates tags `1.0.0`, `1.0`, and `latest`)
-- Commit SHA for other branches
+---
+
+**Q: Does TileHub work on mobile devices?**  
+A: Of course. It reminds Link Tree-like app on mobile.
+
+---
+
+**Q: Is there a dark mode?**  
+A: You better sit down now: There is ONLY dark mode. We don't like light in here.
 
 ## 📌 FAQ
 
