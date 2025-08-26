@@ -15,7 +15,9 @@ services:
       - tilehub-network
 
   tilehub-web:
-    build: ./custom-images/nginx
+    build: 
+      context: .
+      dockerfile: ./custom-images/nginx/Dockerfile
     image: madroots/tilehub-nginx:test
     ports:
       - "5200:80"

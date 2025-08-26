@@ -1,10 +1,10 @@
 FROM nginx:1.25-alpine
 
 # Copy nginx configuration
-COPY default.conf /etc/nginx/conf.d/default.conf
+COPY custom-images/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Copy application files
-COPY ../app/ /var/www/html/
+COPY app/ /var/www/html/
 
 # Set proper permissions
 RUN chown -R nginx:nginx /var/cache/nginx && \
