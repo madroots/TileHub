@@ -1,19 +1,19 @@
 services:
-  app:
+  tilehub-app:
     image: madroots/tilehub:latest
     volumes:
       - ./app:/var/www/html
     depends_on:
-      - db
+      - tilehub-db
     environment:
-      - DB_HOST=db
+      - DB_HOST=tilehub-db
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
     networks:
-      - mynetwork
+      - tilehub-network
 
-  web:
+  tilehub-web:
     image: nginx:latest
     ports:
       - "5200:80"
@@ -21,11 +21,11 @@ services:
       - ./app:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - app
+      - tilehub-app
     networks:
-      - mynetwork
+      - tilehub-network
 
-  db:
+  tilehub-db:
     image: mariadb:11
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_DB_PASS}
@@ -36,11 +36,11 @@ services:
       - ./docker/mariadb-init/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
     networks:
-      - mynetwork
+      - tilehub-network
 
 volumes:
   db_data:
 
 networks:
-  mynetwork:
+  tilehub-network:
     driver: bridge

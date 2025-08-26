@@ -80,33 +80,3 @@ A: Of course. It reminds Link Tree-like app on mobile.
 
 **Q: Is there a dark mode?**  
 A: You better sit down now: There is ONLY dark mode. We don't like light in here.
-
-## 📌 FAQ
-
-**Q: Why TileHub over something else?**  
-A: I like to keep things simple. Click and done. With lots of opensource projects these days, Its hard to keep stuff in our heads. You don't need to remember anything with TileHub - its made to be straightfoward and simple to setup. Think of it as your personal "start page" with no learning curve.
-
----
-
-**Q: Is there any authentication or login system?**  
-A: Not at the moment. Anyone who can access your TileHub instance can edit tiles if they know the `?edit=true` URL parameter. If you need security, consider running TileHub behind a reverse proxy with HTTP authentication or limiting access via your network/firewall. Auth can be added at any point in the future if requested though.
-
----
-
-**Q: How do I enter edit mode?**  
-A: Add `?edit=true` to the end of your TileHub URL (e.g., `http://localhost:5200/?edit=true`). This will enable tile and group editing options. Or use Settings button if you enabled it.
-
----
-
-**Q: Can I back up my tiles?**  
-A: Not yet, but export and import is planned!
-
----
-
-**Q: Does TileHub work on mobile devices?**  
-A: Of course. It reminds Link Tree-like app on mobile.
-
----
-
-**Q: Is there a dark mode?**  
-A: You better sit down now: There is ONLY dark mode. We don't like light in here.
