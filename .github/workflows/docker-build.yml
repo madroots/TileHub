@@ -102,7 +102,7 @@ jobs:
         with:
           context: ./custom-images/mariadb
           file: ./custom-images/mariadb/Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64  # Removed linux/arm/v7 as it's not supported by MariaDB 10.11
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-mariadb.outputs.tags }}
           labels: ${{ steps.meta-mariadb.outputs.labels }}
