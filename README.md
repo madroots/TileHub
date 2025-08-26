@@ -27,37 +27,76 @@ https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
 
 ## 🛠️ Installation
 
-### Option 1: Using Docker Compose (Recommended for development)
+### Option 1: Using Docker Compose (Recommended)
 
-1. **Clone the Repository**
+Simply copy the following docker-compose.yml content to a file and run:
 
-   ```bash
-   git clone https://github.com/madroots/TileHub.git && cd TileHub
-   ```
+```yaml
+version: '3.8'
 
-2. **Run**
+services:
+  tilehub-app:
+    image: madroots/tilehub-app:latest
+    depends_on:
+      - tilehub-db
+    environment:
+      - DB_HOST=tilehub-db
+      - DB_NAME=tilehubdb
+      - DB_USER=tilehubuser
+      - DB_PASS=tilehubpass
+    networks:
+      - tilehub-network
 
-   ```bash
-   docker-compose up -d --build
-   ```
+  tilehub-web:
+    image: madroots/tilehub-nginx:latest
+    ports:
+      - "5200:80"
+    depends_on:
+      - tilehub-app
+    networks:
+      - tilehub-network
 
-### Option 2: Using Pre-built Docker Images (Recommended for production)
+  tilehub-db:
+    image: madroots/tilehub-mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tilehubdb
+      MYSQL_USER: tilehubuser
+      MYSQL_PASSWORD: tilehubpass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - tilehub-network
 
-1. **Download the docker-compose.user.yml file**
+volumes:
+  db_data:
 
-   ```bash
-   curl -O https://raw.githubusercontent.com/madroots/TileHub/main/docker-compose.user.yml
-   curl -O https://raw.githubusercontent.com/madroots/TileHub/main/app.zip
-   unzip app.zip
-   ```
+networks:
+  tilehub-network:
+    driver: bridge
+```
 
-2. **Run**
+Then run:
+```bash
+docker-compose up -d
+```
 
-   ```bash
-   docker-compose -f docker-compose.user.yml up -d
-   ```
+Or download it directly:
+```bash
+wget https://raw.githubusercontent.com/madroots/TileHub/main/docker-compose.yml
+docker-compose up -d
+```
 
 App runs on `localhost:5200` unless you changed the port in `docker-compose.yml` 🥳
+
+### Option 2: For Developers (Building from Source)
+
+If you want to build the images from source:
+
+```bash
+git clone https://github.com/madroots/TileHub.git && cd TileHub
+docker-compose -f docker-compose.dev.yml up -d --build
+```
 
 ## 📌 FAQ
 

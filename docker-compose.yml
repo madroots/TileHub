@@ -2,8 +2,7 @@ version: '3.8'
 
 services:
   tilehub-app:
-    build: .
-    image: madroots/tilehub-app:test
+    image: madroots/tilehub-app:latest
     depends_on:
       - tilehub-db
     environment:
@@ -15,10 +14,7 @@ services:
       - tilehub-network
 
   tilehub-web:
-    build: 
-      context: .
-      dockerfile: ./custom-images/nginx/Dockerfile
-    image: madroots/tilehub-nginx:test
+    image: madroots/tilehub-nginx:latest
     ports:
       - "5200:80"
     depends_on:
@@ -27,8 +23,7 @@ services:
       - tilehub-network
 
   tilehub-db:
-    build: ./custom-images/mariadb
-    image: madroots/tilehub-mariadb:test
+    image: madroots/tilehub-mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: tilehubdb

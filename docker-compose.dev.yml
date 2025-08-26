@@ -1,3 +1,5 @@
+# Development version - builds images from source code
+# Use this for development and testing changes
 version: '3.8'
 
 services:
@@ -15,7 +17,9 @@ services:
       - tilehub-network
 
   tilehub-web:
-    build: ./custom-images/nginx
+    build: 
+      context: .
+      dockerfile: ./custom-images/nginx/Dockerfile
     image: madroots/tilehub-nginx:test
     ports:
       - "5200:80"
