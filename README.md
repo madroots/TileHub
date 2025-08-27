@@ -42,6 +42,8 @@ services:
       - DB_NAME=tilehubdb
       - DB_USER=tilehubuser
       - DB_PASS=tilehubpass
+    volumes:
+      - uploads_data:/var/www/html/uploads
     networks:
       - tilehub-network
 
@@ -51,6 +53,8 @@ services:
       - "5200:80"
     depends_on:
       - tilehub-app
+    volumes:
+      - uploads_data:/var/www/html/uploads
     networks:
       - tilehub-network
 
@@ -68,6 +72,7 @@ services:
 
 volumes:
   db_data:
+  uploads_data:
 
 networks:
   tilehub-network:
