@@ -12,6 +12,7 @@ services:
       - uploads_data:/var/www/html/uploads
     networks:
       - tilehub-network
+    restart: unless-stopped
 
   tilehub-web:
     image: madroots/tilehub-nginx:latest
@@ -23,6 +24,7 @@ services:
       - uploads_data:/var/www/html/uploads
     networks:
       - tilehub-network
+    restart: unless-stopped
 
   tilehub-db:
     image: madroots/tilehub-mariadb:latest
@@ -35,6 +37,7 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - tilehub-network
+    restart: unless-stopped
 
 volumes:
   db_data:

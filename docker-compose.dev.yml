@@ -18,6 +18,7 @@ services:
       - ./app:/var/www/html
     networks:
       - tilehub-network
+    restart: unless-stopped
 
   tilehub-web:
     build: 
@@ -33,6 +34,7 @@ services:
       - tilehub-app
     networks:
       - tilehub-network
+    restart: unless-stopped
 
   tilehub-db:
     build: ./custom-images/mariadb
@@ -46,6 +48,7 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - tilehub-network
+    restart: unless-stopped
 
 volumes:
   db_data:
