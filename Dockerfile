@@ -10,9 +10,14 @@ WORKDIR /var/www/html
 # Copy application files
 COPY app/ /var/www/html/
 
-# Set proper permissions for uploads directory
+# Copy entrypoint script
+COPY app/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Set proper permissions for uploads directory to allow both containers to access
 RUN mkdir -p /var/www/html/uploads && \
     chown -R www-data:www-data /var/www/html/uploads && \
-    chmod -R 755 /var/www/html/uploads
+    chmod -R 777 /var/www/html/uploads
 
-# Use the default entrypoint and command
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
