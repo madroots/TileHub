@@ -6,7 +6,7 @@
 TileHub is a simple and customizable dashboard application that allows you to manage and display tiles with URLs and icons.
 Works best for new browser tab with an extension like Custom New Tab URL Options or similar. 
 
-## ⭐ Features
+## Features
 
 - **Tile Management**: Add, edit, delete and drag and drop tiles to organize
 - **Icon Upload**: Upload custom icons for tiles (SVG supported)
@@ -14,18 +14,19 @@ Works best for new browser tab with an extension like Custom New Tab URL Options
 - **Group Management**: Add, rename, delete and drag and drop groups
 - **Discreet Edit Access**: Access edit mode via `?edit=true` parameter (gear icon can be hidden)
 
-## 🎥 Demo video
+## 🎥 Demo
 
-https://github.com/user-attachments/assets/eb97a334-caba-4e45-ba92-734e7eb5fbd1
+checkout demo, no login needed: https://tilehub.online
 
-## 🚩 Known Issues / To Do
 
-- *No major issues currently reported.*
+## Known Issues / To Do
+
+- Import/Export functionality [x]
 
 > [!WARNING]  
 > **No Authentication**: Designed for trusted home networks. TileHub omits authentication to keep things simple.
 
-## 🛠️ Installation
+## Installation
 
 ### Option 1: Using Docker Compose (Recommended)
 
@@ -101,7 +102,7 @@ git clone https://github.com/madroots/TileHub.git && cd TileHub
 docker-compose -f docker-compose.dev.yml up -d --build
 ```
 
-## 📌 FAQ
+## FAQ
 
 **Q: Why TileHub over something else?**  
 A: I like to keep things simple. Click and done. With lots of opensource projects these days, Its hard to keep stuff in our heads. You don't need to remember anything with TileHub - its made to be straightfoward and simple to setup. Think of it as your personal "start page" with no learning curve.
