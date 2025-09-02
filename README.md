@@ -16,7 +16,7 @@ Works best for new browser tab with an extension like Custom New Tab URL Options
 
 ## 🎥 Demo
 
-checkout demo, no login needed: https://tilehub.online
+checkout demo, no login needed: https://demo.tilehub.online
 
 
 ## Known Issues / To Do
