@@ -287,8 +287,8 @@ header('Location: index.php');
 exit;
 
 function exportData($pdo) {
-    // Create temporary directory for export
-    $exportDir = __DIR__ . '/tmp_export_' . uniqid();
+    // Create temporary directory for export in uploads folder
+    $exportDir = __DIR__ . '/uploads/tmp_export_' . uniqid();
     if (!mkdir($exportDir, 0777, true)) {
         die("Failed to create temporary directory");
     }
@@ -467,8 +467,8 @@ function importData($pdo) {
         exit;
     }
     
-    // Create temporary directory for extraction
-    $extractDir = __DIR__ . '/tmp_extract_' . uniqid();
+    // Create temporary directory for extraction in uploads folder
+    $extractDir = __DIR__ . '/uploads/tmp_extract_' . uniqid();
     if (!mkdir($extractDir, 0777, true)) {
         $_SESSION['import_error'] = 'Failed to create temporary directory.';
         header('Location: index.php');
