@@ -38,6 +38,59 @@ tilehub-app:
 
 This ensures the app container can access the shared uploads volume while the web container can still perform its required operations as root.
 
+## Setting Up Permissions for Development
+
+When using the development setup (`docker-compose.dev.yml`), the local `./app` directory is mounted into the container. This can cause permission issues if the local uploads directory doesn't have the correct permissions.
+
+To set up the correct permissions:
+
+### On Linux/macOS:
+```bash
+# Make sure the uploads directory exists
+mkdir -p app/uploads
+
+# Set ownership to UID/GID 80:80 (www-data in Alpine)
+sudo chown -R 80:80 app/uploads
+
+# Set permissions
+sudo chmod -R 755 app/uploads
+sudo chmod 775 app/uploads  # Make sure it's group-writable
+```
+
+### On Windows:
+Windows doesn't have the same permission model, but you can try:
+```bash
+# Make sure the uploads directory exists
+mkdir -p app/uploads
+
+# Set permissions (this might not be necessary on Windows)
+chmod -R 755 app/uploads
+chmod 775 app/uploads
+```
+
+If you don't have sudo access or can't change ownership, you can temporarily use less secure permissions:
+```bash
+# Less secure but should work
+chmod -R 777 app/uploads
+```
+
+**Note**: Using 777 permissions is not recommended for production but will work for development.
+
+## Permission Check Script
+
+TileHub includes a permission check script to help verify your setup:
+
+```bash
+# Run the permission check script
+./check_permissions.sh
+```
+
+This script will:
+1. Check if the uploads directory exists and create it if needed
+2. Verify current permissions and ownership
+3. Test write access to the directory
+4. Provide recommendations for fixing issues
+
 ## Testing Changes
 
 To test these changes, use the development docker-compose file which builds images from source:

@@ -93,6 +93,8 @@ docker-compose up -d
 
 App runs on `localhost:5200` unless you changed the port in `docker-compose.yml` 🥳
 
+**Note on Permissions**: If you encounter permission issues when uploading icons, make sure the uploads directory has the correct permissions. See the [PERMISSIONS.md](PERMISSIONS.md) file for detailed instructions.
+
 ### Option 2: For Developers (Building from Source)
 
 If you want to build the images from source:
@@ -101,6 +103,8 @@ If you want to build the images from source:
 git clone https://github.com/madroots/TileHub.git && cd TileHub
 docker-compose -f docker-compose.dev.yml up -d --build
 ```
+
+**Note for Developers**: When using the development setup, you may need to set up correct permissions for the local `app/uploads` directory. See the [PERMISSIONS.md](PERMISSIONS.md) file for detailed instructions.
 
 ## FAQ
 

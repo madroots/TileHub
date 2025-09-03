@@ -17,6 +17,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Create uploads directory with proper permissions
 # Using consistent UID/GID (80:80) for both containers
+# Note: In development, this directory will be mounted over, but the entrypoint script
+# will ensure correct permissions are set at container startup
 RUN mkdir -p /var/www/html/uploads && \
     chown -R 80:80 /var/www/html/uploads && \
     chmod -R 755 /var/www/html/uploads
