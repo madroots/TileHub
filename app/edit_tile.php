@@ -317,7 +317,12 @@ function exportData($pdo) {
             $icons = scandir($uploadDir);
             foreach ($icons as $icon) {
                 if ($icon !== '.' && $icon !== '..') {
-                    copy($uploadDir . '/' . $icon, $iconsDir . '/' . $icon);
+                    $sourceFile = $uploadDir . '/' . $icon;
+                    $destFile = $iconsDir . '/' . $icon;
+                    // Only copy files, not directories
+                    if (is_file($sourceFile)) {
+                        copy($sourceFile, $destFile);
+                    }
                 }
             }
         }
@@ -333,8 +338,8 @@ function exportData($pdo) {
         ];
         file_put_contents($exportDir . '/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT));
         
-        // Create ZIP archive
-        $zipFile = __DIR__ . '/tilehub_export_' . date('Y-m-d') . '.zip';
+        // Create ZIP archive in uploads directory
+        $zipFile = __DIR__ . '/uploads/tilehub_export_' . date('Y-m-d') . '.zip';
         createZip($exportDir, $zipFile);
         
         // Clean up temporary directory
