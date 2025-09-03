@@ -3,7 +3,8 @@ FROM php:8.3-fpm-alpine
 # Install system dependencies and PHP extensions
 RUN apk add --no-cache \
     libpng-dev \
-    && docker-php-ext-install pdo pdo_mysql gd
+    libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql gd zip
 
 WORKDIR /var/www/html
 
