@@ -285,7 +285,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 header('Location: index.php');
 exit;
-}
 
 function exportData($pdo) {
     // Create temporary directory for export
