@@ -298,9 +298,53 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <label for="editModeToggle"></label>
                     </div>
                 </div>
-                <!-- More settings here in the future -->
+                
+                <?php if (isset($_SESSION['edit_mode'])): ?>
+                <!-- Import/Export Section -->
+                <div class="setting-item">
+                    <span>Export Data</span>
+                    <button class="btn btn-sm btn-primary" id="exportDataBtn">Export</button>
+                </div>
+                <div class="setting-item">
+                    <span>Import Data</span>
+                    <button class="btn btn-sm btn-success" id="importDataBtn" data-bs-toggle="modal" data-bs-target="#importModal">Import</button>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
+    
+    <!-- Import Modal -->
+    <?php if (isset($_SESSION['edit_mode'])): ?>
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="edit_tile.php?action=import" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="importFile" class="form-label">Select Export File</label>
+                            <input type="file" class="form-control" id="importFile" name="import_file" accept=".zip" required>
+                            <div class="form-text">Choose a TileHub export ZIP file to import.</div>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="overwriteData" name="overwrite">
+                            <label class="form-check-label" for="overwriteData">
+                                Overwrite existing data
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Import Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 </body>
 </html>

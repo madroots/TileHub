@@ -123,6 +123,7 @@
             const closeSettings = document.getElementById('closeSettings');
             const editModeToggle = document.getElementById('editModeToggle');
             const showSettingsButtonToggle = document.getElementById('showSettingsButtonToggle');
+            const exportDataBtn = document.getElementById('exportDataBtn');
 
             // Open settings overlay
             if (settingsButton) {
@@ -187,6 +188,17 @@
                         // Revert the toggle if the update failed
                         this.checked = !this.checked;
                     });
+                });
+            }
+            
+            // Export data button
+            if (exportDataBtn) {
+                exportDataBtn.addEventListener('click', function() {
+                    // Confirm export
+                    if (confirm('Export all your tiles, groups, and settings?')) {
+                        // Redirect to export endpoint
+                        window.location.href = 'edit_tile.php?action=export';
+                    }
                 });
             }
         });

@@ -6,6 +6,23 @@ require_once 'db.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// Check if ZipArchive is available
+if (!class_exists('ZipArchive')) {
+    die('ZipArchive class is not available. Please install/enable the php-zip extension.');
+}
+
+// Handle export action
+if (isset($_GET['action']) && $_GET['action'] === 'export') {
+    exportData($pdo);
+    exit;
+}
+
+// Handle import action
+if (isset($_GET['action']) && $_GET['action'] === 'import') {
+    importData($pdo);
+    exit;
+}
+
 // Handle form submission for adding/editing tiles
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_GET['action']) && $_GET['action'] === 'update_title') {
@@ -268,4 +285,150 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 header('Location: index.php');
 exit;
+
+<?php
+}
+
+function exportData($pdo) {
+    // Create temporary directory for export
+    $exportDir = __DIR__ . '/tmp_export_' . uniqid();
+    if (!mkdir($exportDir, 0777, true)) {
+        die("Failed to create temporary directory");
+    }
+    
+    try {
+        // Create database directory
+        $dbDir = $exportDir . '/database';
+        mkdir($dbDir, 0777, true);
+        
+        // Export groups table
+        exportTable($pdo, 'groups', $dbDir . '/groups.sql');
+        
+        // Export tiles table
+        exportTable($pdo, 'tiles', $dbDir . '/tiles.sql');
+        
+        // Export settings table
+        exportTable($pdo, 'settings', $dbDir . '/settings.sql');
+        
+        // Create icons directory
+        $iconsDir = $exportDir . '/icons';
+        mkdir($iconsDir, 0777, true);
+        
+        // Copy icon files
+        $uploadDir = __DIR__ . '/uploads';
+        if (is_dir($uploadDir)) {
+            $icons = scandir($uploadDir);
+            foreach ($icons as $icon) {
+                if ($icon !== '.' && $icon !== '..') {
+                    copy($uploadDir . '/' . $icon, $iconsDir . '/' . $icon);
+                }
+            }
+        }
+        
+        // Create manifest file
+        $manifest = [
+            'version' => '1.0',
+            'export_date' => date('Y-m-d H:i:s'),
+            'tilehub_version' => '1.0'
+        ];
+        file_put_contents($exportDir . '/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT));
+        
+        // Create ZIP archive
+        $zipFile = __DIR__ . '/tilehub_export_' . date('Y-m-d') . '.zip';
+        createZip($exportDir, $zipFile);
+        
+        // Clean up temporary directory
+        removeDirectory($exportDir);
+        
+        // Send ZIP file to user
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="tilehub_export_' . date('Y-m-d') . '.zip"');
+        header('Content-Length: ' . filesize($zipFile));
+        readfile($zipFile);
+        
+        // Delete temporary ZIP file
+        unlink($zipFile);
+        
+    } catch (Exception $e) {
+        // Clean up on error
+        if (is_dir($exportDir)) {
+            removeDirectory($exportDir);
+        }
+        die("Export failed: " . $e->getMessage());
+    }
+}
+
+function exportTable($pdo, $table, $filename) {
+    $stmt = $pdo->prepare("SELECT * FROM `$table`");
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $sql = "/* Export of $table table */\n";
+    $sql .= "/* Exported on " . date('Y-m-d H:i:s') . " */\n\n";
+    
+    foreach ($rows as $row) {
+        $columns = array_keys($row);
+        $values = array_map(function($value) use ($pdo) {
+            return $value === null ? 'NULL' : $pdo->quote($value);
+        }, $row);
+        
+        $sql .= "INSERT INTO `$table` (`" . implode('`, `', $columns) . "`) VALUES (" . implode(', ', $values) . ");\n";
+    }
+    
+    file_put_contents($filename, $sql);
+}
+
+function createZip($source, $destination) {
+    $zip = new ZipArchive();
+    if (!$zip->open($destination, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
+        throw new Exception("Could not create ZIP archive");
+    }
+    
+    $source = str_replace('\\', '/', realpath($source));
+    
+    if (is_dir($source) === true) {
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($source),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        
+        foreach ($files as $file) {
+            $file = str_replace('\\', '/', $file);
+            
+            // Ignore "." and ".." folders
+            if (in_array(substr($file, strrpos($file, '/') + 1), ['.', '..'])) {
+                continue;
+            }
+            
+            $file = realpath($file);
+            
+            if (is_dir($file) === true) {
+                $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
+            } else if (is_file($file) === true) {
+                $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
+            }
+        }
+    }
+    
+    return $zip->close();
+}
+
+function removeDirectory($dir) {
+    if (!is_dir($dir)) {
+        return;
+    }
+    
+    $files = array_diff(scandir($dir), ['.', '..']);
+    foreach ($files as $file) {
+        (is_dir("$dir/$file")) ? removeDirectory("$dir/$file") : unlink("$dir/$file");
+    }
+    return rmdir($dir);
+}
+
+function importData($pdo) {
+    // TODO: Implement import functionality
+    // This will be implemented in the next step
+    header('Location: index.php');
+    exit;
+}
 ?>
