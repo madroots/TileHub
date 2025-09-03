@@ -501,7 +501,7 @@ function importData($pdo) {
             throw new Exception('Invalid manifest file.');
         }
         
-        // Check version compatibility
+        // Check version compatibility and resolve conflicts
         $compatibility = checkVersionCompatibility($pdo, $manifest);
         if (!$compatibility['compatible']) {
             throw new Exception('Version incompatibility: ' . $compatibility['message']);
@@ -520,10 +520,10 @@ function importData($pdo) {
             $pdo->exec("DELETE FROM settings");
         }
         
-        // Import database tables
-        importTable($pdo, $dbDir . '/groups.sql', 'groups', $overwrite);
-        importTable($pdo, $dbDir . '/tiles.sql', 'tiles', $overwrite);
-        importTable($pdo, $dbDir . '/settings.sql', 'settings', $overwrite);
+        // Import database tables with conflict resolution
+        importTableWithConflictResolution($pdo, $dbDir . '/groups.sql', 'groups', $overwrite, $manifest);
+        importTableWithConflictResolution($pdo, $dbDir . '/tiles.sql', 'tiles', $overwrite, $manifest);
+        importTableWithConflictResolution($pdo, $dbDir . '/settings.sql', 'settings', $overwrite, $manifest);
         
         // Copy icon files
         $iconsDir = $extractDir . '/icons';
@@ -536,7 +536,10 @@ function importData($pdo) {
             $icons = scandir($iconsDir);
             foreach ($icons as $icon) {
                 if ($icon !== '.' && $icon !== '..') {
-                    copy($iconsDir . '/' . $icon, $uploadDir . '/' . $icon);
+                    // Skip if file already exists to avoid overwriting
+                    if (!file_exists($uploadDir . '/' . $icon)) {
+                        copy($iconsDir . '/' . $icon, $uploadDir . '/' . $icon);
+                    }
                 }
             }
         }
@@ -566,6 +569,135 @@ function importData($pdo) {
     }
 }
 
+function importTableWithConflictResolution($pdo, $sqlFile, $tableName, $overwrite, $manifest) {
+    if (!file_exists($sqlFile)) {
+        return; // Skip if file doesn't exist
+    }
+    
+    $sql = file_get_contents($sqlFile);
+    if (empty($sql)) {
+        return;
+    }
+    
+    // Get current table schema
+    $currentSchema = [];
+    try {
+        $stmt = $pdo->query("DESCRIBE `$tableName`");
+        $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($columns as $column) {
+            $currentSchema[$column['Field']] = $column;
+        }
+    } catch (Exception $e) {
+        // Table doesn't exist, will be created by import
+    }
+    
+    // Split SQL into individual statements
+    $statements = explode(";
+", $sql);
+    
+    foreach ($statements as $statement) {
+        $statement = trim($statement);
+        if (!empty($statement)) {
+            // Handle INSERT statements with conflict resolution
+            if (preg_match('/INSERT INTO\s+`?' . $tableName . '`?/i', $statement)) {
+                // Parse the INSERT statement to extract columns and values
+                $resolvedStatement = resolveInsertConflicts($pdo, $statement, $tableName, $currentSchema, $manifest);
+                if ($resolvedStatement) {
+                    try {
+                        $pdo->exec($resolvedStatement);
+                    } catch (Exception $e) {
+                        // Log error but continue with other statements
+                        error_log("Failed to execute statement: " . $e->getMessage());
+                    }
+                }
+            } else {
+                // Execute other statements (CREATE TABLE, etc.) directly
+                try {
+                    $pdo->exec($statement);
+                } catch (Exception $e) {
+                    // Log error but continue
+                    error_log("Failed to execute statement: " . $e->getMessage());
+                }
+            }
+        }
+    }
+}
+
+function resolveInsertConflicts($pdo, $statement, $tableName, $currentSchema, $manifest) {
+    // Extract columns and values from INSERT statement
+    if (!preg_match('/INSERT INTO\s+`?' . $tableName . '`?\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)/i', $statement, $matches)) {
+        return $statement; // Could not parse, return as is
+    }
+    
+    $columns = array_map('trim', explode(',', $matches[1]));
+    $values = array_map('trim', explode(',', $matches[2]));
+    
+    // Remove backticks from column names
+    $columns = array_map(function($col) {
+        return trim($col, '` ');
+    }, $columns);
+    
+    // Create associative array of column => value
+    $data = [];
+    for ($i = 0; $i < count($columns); $i++) {
+        if (isset($values[$i])) {
+            $data[$columns[$i]] = trim($values[$i], "' ");
+        }
+    }
+    
+    // Check for missing columns in current schema
+    $missingColumns = [];
+    foreach ($columns as $column) {
+        if (!isset($currentSchema[$column])) {
+            $missingColumns[] = $column;
+        }
+    }
+    
+    // If there are missing columns, we need to handle them
+    if (!empty($missingColumns)) {
+        // Remove missing columns from the insert
+        foreach ($missingColumns as $missingColumn) {
+            unset($data[$missingColumn]);
+        }
+    }
+    
+    // Check for missing required columns in the data
+    $missingDataColumns = [];
+    foreach ($currentSchema as $column => $info) {
+        // Skip auto increment columns
+        if ($info['Extra'] === 'auto_increment') {
+            continue;
+        }
+        
+        // Check if column is required and missing from data
+        if (!isset($data[$column]) && $info['Null'] === 'NO' && $info['Default'] === null) {
+            $missingDataColumns[] = $column;
+        }
+    }
+    
+    // If there are missing required columns with no defaults, we can't insert this row
+    if (!empty($missingDataColumns)) {
+        // For simplicity, we'll skip rows with missing required data
+        // In a more sophisticated system, we might prompt the user or use defaults
+        return null;
+    }
+    
+    // Rebuild the INSERT statement with resolved columns
+    $newColumns = array_keys($data);
+    $newValues = array_values($data);
+    
+    // Escape values properly
+    $newValues = array_map(function($value) use ($pdo) {
+        return $value === 'NULL' ? 'NULL' : $pdo->quote($value);
+    }, $newValues);
+    
+    if (empty($newColumns)) {
+        return null; // Nothing to insert
+    }
+    
+    return "INSERT INTO `$tableName` (`" . implode('`, `', $newColumns) . "`) VALUES (" . implode(', ', $newValues) . ")";
+}
+
 function checkVersionCompatibility($pdo, $manifest) {
     // For now, we'll assume compatibility for same major versions
     // In a more complex system, we would check schema compatibility
@@ -581,36 +713,5 @@ function checkVersionCompatibility($pdo, $manifest) {
     // More detailed check could be implemented here
     // For now, we'll just return compatible
     return ['compatible' => true, 'message' => 'Compatible'];
-}
-
-function importTable($pdo, $sqlFile, $tableName, $overwrite) {
-    if (!file_exists($sqlFile)) {
-        return; // Skip if file doesn't exist
-    }
-    
-    $sql = file_get_contents($sqlFile);
-    if (empty($sql)) {
-        return;
-    }
-    
-    // Split SQL into individual statements
-    $statements = explode(";\n", $sql);
-    
-    foreach ($statements as $statement) {
-        $statement = trim($statement);
-        if (!empty($statement)) {
-            // Modify INSERT statements to handle duplicates
-            if (strpos($statement, 'INSERT INTO') !== false) {
-                if ($overwrite) {
-                    // Convert to INSERT ... ON DUPLICATE KEY UPDATE
-                    $statement = str_replace('INSERT INTO', 'INSERT INTO', $statement);
-                    // For simplicity, we'll just execute as is since we've already cleared the table
-                }
-                // If not overwriting, we'll just execute the INSERT (will fail on duplicates, which is fine)
-            }
-            
-            $pdo->exec($statement);
-        }
-    }
 }
 ?>
