@@ -70,6 +70,24 @@ $tiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?= htmlspecialchars($dashboardTitle) ?>
             <?php endif; ?>
         </h1>
+        
+        <!-- Import/Export Messages -->
+        <?php if (isset($_SESSION['import_success'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($_SESSION['import_success']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['import_success']); ?>
+        <?php endif; ?>
+        
+        <?php if (isset($_SESSION['import_error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($_SESSION['import_error']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['import_error']); ?>
+        <?php endif; ?>
+        
         <?php if (isset($_SESSION['edit_mode'])) : ?>
             <a href="?exit_edit=true" class="btn btn-danger mb-3">Exit Edit Mode</a>
             <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addTileModal">Add Tile</button>
