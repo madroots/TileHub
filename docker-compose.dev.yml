@@ -19,6 +19,7 @@ services:
     networks:
       - tilehub-network
     restart: unless-stopped
+    user: "80:80"
 
   tilehub-web:
     build: 

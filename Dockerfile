@@ -15,10 +15,11 @@ COPY app/ /var/www/html/
 COPY app/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Set proper permissions for uploads directory to allow both containers to access
+# Create uploads directory with proper permissions
+# Using consistent UID/GID (80:80) for both containers
 RUN mkdir -p /var/www/html/uploads && \
-    chown -R www-data:www-data /var/www/html/uploads && \
-    chmod -R 777 /var/www/html/uploads
+    chown -R 80:80 /var/www/html/uploads && \
+    chmod -R 755 /var/www/html/uploads
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

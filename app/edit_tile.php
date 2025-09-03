@@ -237,10 +237,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $iconName = uniqid() . '_' . basename($_FILES['icon_upload']['name']);
         $uploadDir = __DIR__ . '/uploads/';
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+            mkdir($uploadDir, 0755, true);
         }
         $iconPath = $uploadDir . $iconName;
         move_uploaded_file($tmpName, $iconPath);
+        // Set proper permissions for the uploaded file
+        chmod($iconPath, 0644);
         $iconPath = basename($iconPath); // Store only the relative path for the icon
     } elseif (isset($_POST['icon']) && !empty($_POST['icon'])) {
         // Reuse existing icon
@@ -288,15 +290,15 @@ exit;
 
 function exportData($pdo) {
     // Create temporary directory for export in uploads folder
-    $exportDir = __DIR__ . '/uploads/tmp_export_' . uniqid();
-    if (!mkdir($exportDir, 0777, true)) {
-        die("Failed to create temporary directory");
-    }
+        $exportDir = __DIR__ . '/uploads/tmp_export_' . uniqid();
+        if (!mkdir($exportDir, 0755, true)) {
+            die("Failed to create temporary directory");
+        }
     
     try {
         // Create database directory
         $dbDir = $exportDir . '/database';
-        mkdir($dbDir, 0777, true);
+        mkdir($dbDir, 0755, true);
         
         // Export groups table
         exportTable($pdo, 'groups', $dbDir . '/groups.sql');
@@ -309,7 +311,7 @@ function exportData($pdo) {
         
         // Create icons directory
         $iconsDir = $exportDir . '/icons';
-        mkdir($iconsDir, 0777, true);
+        mkdir($iconsDir, 0755, true);
         
         // Copy icon files
         $uploadDir = __DIR__ . '/uploads';
@@ -474,7 +476,7 @@ function importData($pdo) {
     
     // Create temporary directory for extraction in uploads folder
     $extractDir = __DIR__ . '/uploads/tmp_extract_' . uniqid();
-    if (!mkdir($extractDir, 0777, true)) {
+    if (!mkdir($extractDir, 0755, true)) {
         $_SESSION['import_error'] = 'Failed to create temporary directory.';
         header('Location: index.php');
         exit;
@@ -532,7 +534,7 @@ function importData($pdo) {
         if (is_dir($iconsDir)) {
             $uploadDir = __DIR__ . '/uploads';
             if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+                mkdir($uploadDir, 0755, true);
             }
             
             $icons = scandir($iconsDir);
