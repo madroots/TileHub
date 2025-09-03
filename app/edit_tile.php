@@ -325,11 +325,14 @@ function exportData($pdo) {
             }
         }
         
-        // Create manifest file
+        // Create manifest file with schema information
+        $schemaInfo = getSchemaInfo($pdo);
+        
         $manifest = [
             'version' => '1.0',
             'export_date' => date('Y-m-d H:i:s'),
-            'tilehub_version' => '1.0'
+            'tilehub_version' => '1.0',
+            'schema' => $schemaInfo
         ];
         file_put_contents($exportDir . '/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT));
         
@@ -425,6 +428,24 @@ function removeDirectory($dir) {
     return rmdir($dir);
 }
 
+function getSchemaInfo($pdo) {
+    $schema = [];
+    
+    // Get information about groups table
+    $stmt = $pdo->query("DESCRIBE groups");
+    $schema['groups'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Get information about tiles table
+    $stmt = $pdo->query("DESCRIBE tiles");
+    $schema['tiles'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Get information about settings table
+    $stmt = $pdo->query("DESCRIBE settings");
+    $schema['settings'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    return $schema;
+}
+
 function importData($pdo) {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header('Location: index.php');
@@ -478,6 +499,12 @@ function importData($pdo) {
         $manifest = json_decode(file_get_contents($manifestFile), true);
         if (!$manifest) {
             throw new Exception('Invalid manifest file.');
+        }
+        
+        // Check version compatibility
+        $compatibility = checkVersionCompatibility($pdo, $manifest);
+        if (!$compatibility['compatible']) {
+            throw new Exception('Version incompatibility: ' . $compatibility['message']);
         }
         
         // Check if we should overwrite existing data
@@ -537,6 +564,23 @@ function importData($pdo) {
         header('Location: index.php');
         exit;
     }
+}
+
+function checkVersionCompatibility($pdo, $manifest) {
+    // For now, we'll assume compatibility for same major versions
+    // In a more complex system, we would check schema compatibility
+    
+    $currentSchema = getSchemaInfo($pdo);
+    $exportedSchema = $manifest['schema'] ?? [];
+    
+    // Basic check: if exported schema is missing, assume compatibility
+    if (empty($exportedSchema)) {
+        return ['compatible' => true, 'message' => 'No schema info in export, assuming compatibility'];
+    }
+    
+    // More detailed check could be implemented here
+    // For now, we'll just return compatible
+    return ['compatible' => true, 'message' => 'Compatible'];
 }
 
 function importTable($pdo, $sqlFile, $tableName, $overwrite) {
