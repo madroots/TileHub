@@ -14,8 +14,11 @@ services:
       - DB_USER=tilehubuser
       - DB_PASS=tilehubpass
     volumes:
+      - ./app/assets:/var/www/html/assets
+      - ./app/db.php:/var/www/html/db.php
+      - ./app/edit_tile.php:/var/www/html/edit_tile.php
+      - ./app/index.php:/var/www/html/index.php
       - uploads_data:/var/www/html/uploads
-      - ./app:/var/www/html
     networks:
       - tilehub-network
     restart: unless-stopped
@@ -29,8 +32,11 @@ services:
     ports:
       - "5201:80"
     volumes:
+      - ./app/assets:/var/www/html/assets
+      - ./app/db.php:/var/www/html/db.php
+      - ./app/edit_tile.php:/var/www/html/edit_tile.php
+      - ./app/index.php:/var/www/html/index.php
       - uploads_data:/var/www/html/uploads
-      - ./app:/var/www/html
     depends_on:
       - tilehub-app
     networks:
