@@ -11,6 +11,12 @@ chmod -R 755 /var/www/html/uploads 2>/dev/null || true
 # If we can't change ownership, at least make it group-writable
 chmod 775 /var/www/html/uploads 2>/dev/null || chmod 777 /var/www/html/uploads 2>/dev/null || true
 
+# Make sure we can write to the directory by testing it
+touch /var/www/html/uploads/.entrypoint_test 2>/dev/null && rm /var/www/html/uploads/.entrypoint_test 2>/dev/null || {
+    echo "Warning: Unable to write to uploads directory. This may cause issues with icon uploads."
+    echo "Uploads directory: $(ls -la /var/www/html/ | grep uploads)"
+}
+
 # Clean up old temporary directories
 find /var/www/html/uploads -name "tmp_export_*" -type d -mtime +1 -exec rm -rf {} + 2>/dev/null || true
 find /var/www/html/uploads -name "tmp_extract_*" -type d -mtime +1 -exec rm -rf {} + 2>/dev/null || true

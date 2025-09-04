@@ -6,6 +6,11 @@ require_once 'db.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// Start session if not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Check if ZipArchive is available
 if (!class_exists('ZipArchive')) {
     die('ZipArchive class is not available. Please install/enable the php-zip extension.');
@@ -237,12 +242,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $iconName = uniqid() . '_' . basename($_FILES['icon_upload']['name']);
         $uploadDir = __DIR__ . '/uploads/';
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            mkdir($uploadDir, 0775, true);
+            // Try to set ownership if possible
+            @chown($uploadDir, 80);
+            @chgrp($uploadDir, 80);
+        } else {
+            // Ensure the directory has correct permissions
+            @chmod($uploadDir, 0775);
         }
         $iconPath = $uploadDir . $iconName;
-        move_uploaded_file($tmpName, $iconPath);
+        
+        // Try to move the uploaded file
+        if (!move_uploaded_file($tmpName, $iconPath)) {
+            // If move_uploaded_file fails, try copying and then deleting
+            if (copy($tmpName, $iconPath)) {
+                unlink($tmpName);
+            } else {
+                error_log("Failed to move uploaded file to: " . $iconPath);
+                // Try to create a more detailed error message
+                $uploadDirPerms = fileperms($uploadDir);
+                error_log("Upload directory permissions: " . decoct($uploadDirPerms & 0777));
+                error_log("Upload directory owner: " . fileowner($uploadDir) . ", group: " . filegroup($uploadDir));
+                error_log("PHP process user: " . getmyuid() . ", group: " . getmygid());
+            }
+        }
+        
         // Set proper permissions for the uploaded file
-        chmod($iconPath, 0644);
+        @chmod($iconPath, 0644);
         $iconPath = basename($iconPath); // Store only the relative path for the icon
     } elseif (isset($_POST['icon']) && !empty($_POST['icon'])) {
         // Reuse existing icon
@@ -361,7 +387,19 @@ function exportData($pdo) {
         if (is_dir($exportDir)) {
             removeDirectory($exportDir);
         }
-        die("Export failed: " . $e->getMessage());
+        
+        // Log the error instead of dying
+        error_log("Export failed: " . $e->getMessage());
+        
+        // Set error message in session
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['export_error'] = 'Export failed: ' . $e->getMessage();
+        
+        // Redirect instead of dying to avoid header errors
+        header('Location: index.php');
+        exit;
     }
 }
 
@@ -458,6 +496,9 @@ function importData($pdo) {
     
     // Check if file was uploaded
     if (!isset($_FILES['import_file']) || $_FILES['import_file']['error'] !== UPLOAD_ERR_OK) {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['import_error'] = 'No file uploaded or upload error occurred.';
         header('Location: index.php');
         exit;
@@ -469,6 +510,9 @@ function importData($pdo) {
     finfo_close($fileInfo);
     
     if ($mimeType !== 'application/zip' && $mimeType !== 'application/x-zip-compressed') {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['import_error'] = 'Invalid file type. Please upload a ZIP file.';
         header('Location: index.php');
         exit;
@@ -477,6 +521,9 @@ function importData($pdo) {
     // Create temporary directory for extraction in uploads folder
     $extractDir = __DIR__ . '/uploads/tmp_extract_' . uniqid();
     if (!mkdir($extractDir, 0755, true)) {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['import_error'] = 'Failed to create temporary directory.';
         header('Location: index.php');
         exit;
@@ -559,15 +606,17 @@ function importData($pdo) {
         exit;
         
     } catch (Exception $e) {
-        // Rollback transaction
-        $pdo->rollback();
-        
-        // Clean up
+        // Clean up on error
         if (is_dir($extractDir)) {
             removeDirectory($extractDir);
         }
         
+        // Set error message in session instead of dying
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['import_error'] = 'Import failed: ' . $e->getMessage();
+        // Redirect instead of dying to avoid header errors
         header('Location: index.php');
         exit;
     }
