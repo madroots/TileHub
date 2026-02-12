@@ -2,6 +2,9 @@
 // Include database connection
 require_once 'db.php';
 
+// Initialize session
+session_start();
+
 // Enable error reporting for debugging (remove in production)
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -219,12 +222,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tmpName = $_FILES['icon_upload']['tmp_name'];
         $iconName = uniqid() . '_' . basename($_FILES['icon_upload']['name']);
         $uploadDir = __DIR__ . '/uploads/';
+
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+            if (!mkdir($uploadDir, 0777, true)) {
+                $_SESSION['error'] = "Failed to create uploads directory.";
+                header('Location: index.php');
+                exit;
+            }
+            chmod($uploadDir, 0777);
         }
-        $iconPath = $uploadDir . $iconName;
-        move_uploaded_file($tmpName, $iconPath);
-        $iconPath = basename($iconPath); // Store only the relative path for the icon
+
+        $targetPath = $uploadDir . $iconName;
+        if (move_uploaded_file($tmpName, $targetPath)) {
+            $iconPath = $iconName; // Store only the relative path for the icon
+        } else {
+            $_SESSION['error'] = "Failed to move uploaded file. Check permissions.";
+            header('Location: index.php');
+            exit;
+        }
     } elseif (isset($_POST['icon']) && !empty($_POST['icon'])) {
         // Reuse existing icon
         $iconPath = htmlspecialchars($_POST['icon']);

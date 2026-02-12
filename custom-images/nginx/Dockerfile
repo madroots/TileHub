@@ -15,7 +15,7 @@ RUN mkdir -p /var/www/html/uploads && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
     chown -R nginx:nginx /etc/nginx/conf.d && \
-    chown -R 80:80 /var/www/html/uploads && \
+    chown -R 82:82 /var/www/html/uploads && \
     chmod -R 777 /var/www/html/uploads
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
